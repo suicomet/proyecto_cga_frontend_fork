@@ -17,30 +17,38 @@
         Ingresa tus credenciales para acceder al sistema.
       </p>
 
-      <form class="login-form">
+      <form class="login-form" (ngSubmit)="iniciarSesion()">
 
         <label for="usuario">Usuario</label>
         <input
           id="usuario"
+          name="usuario"
           type="text"
-          placeholder="Ej: administrador"
+          placeholder="Ej: usuario_encargado"
+          [(ngModel)]="usuario"
         >
 
         <label for="password">Contraseña</label>
         <input
           id="password"
+          name="password"
           type="password"
           placeholder="Ingresa tu contraseña"
+          [(ngModel)]="password"
         >
 
-        <button type="button" class="login-button" (click)="irAlDashboard()">
-            Ingresar al sistema
+        <p *ngIf="mensajeError" class="login-error">
+          {{ mensajeError }}
+        </p>
+
+        <button type="submit" class="login-button" [disabled]="cargando">
+          {{ cargando ? 'Ingresando...' : 'Ingresar al sistema' }}
         </button>
 
-      </form>
+    </form>
 
-      <p class="login-note">
-        Acceso simulado para validación visual del frontend.
+     <p class="login-note">
+        Acceso conectado al backend mediante autenticación JWT.
       </p>
     </div>
 

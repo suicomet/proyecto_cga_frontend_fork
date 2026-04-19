@@ -1,18 +1,45 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
 export class Login {
 
-  constructor(private router: Router) {}
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
-  irAlDashboard(): void {
-    this.router.navigate(['/dashboard']);
+  usuario = '';
+  password = '';
+  mensajeError = '';
+  cargando = false;
+
+  iniciarSesion(): void {
+    this.mensajeError = '';
+
+    if (!this.usuario || !this.password) {
+      this.mensajeError = 'Debe ingresar usuario y contraseña.';
+      return;
+    }
+
+    this.cargando = true;
+
+    this.authService.iniciarSesion(this.usuario, this.password).subscribe({
+      next: () => {
+        this.cargando = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.cargando = false;
+        this.mensajeError = 'Credenciales incorrectas o usuario inactivo.';
+      }
+    });
   }
-
 }
