@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { authGuard, authChildGuard } from './core/guards/auth.guard';
+
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { Produccion } from './pages/produccion/produccion';
@@ -25,6 +27,8 @@ export const routes: Routes = [
   {
     path: '',
     component: PrivateLayout,
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     children: [
       {
         path: 'dashboard',
