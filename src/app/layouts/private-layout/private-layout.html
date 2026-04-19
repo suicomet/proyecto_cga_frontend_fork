@@ -10,25 +10,71 @@
       </div>
     </div>
 
-    <div class="rol-usuario">
-      <span>Rol</span>
-      <strong>Administrador</strong>
-    </div>
+    <div class="zona-usuario">
+  <div class="rol-usuario">
+    <span>Rol</span>
+    <strong>{{ obtenerRolVisible() }}</strong>
+  </div>
+
+  <button type="button" class="boton-salir" (click)="cerrarSesion()">
+    Cerrar sesión
+  </button>
+</div>
   </header>
 
   <div class="cuerpo-sistema">
 
     <aside class="sidebar">
       <nav class="menu-lateral">
-  <a routerLink="/dashboard" routerLinkActive="activo">Dashboard</a>
-  <a routerLink="/produccion" routerLinkActive="activo">Producción</a>
-  <a routerLink="/bodega" routerLinkActive="activo">Bodega</a>
-  <a routerLink="/pedidos-despacho" routerLinkActive="activo">Pedidos/Despacho</a>
-  <a routerLink="/pagos-cobros" routerLinkActive="activo">Pagos/Cobros</a>
-  <a routerLink="/clientes-saldos" routerLinkActive="activo">Clientes/Saldos</a>
-  <a routerLink="/reportes" routerLinkActive="activo">Reportes</a>
-  <a routerLink="/gestion-usuarios" routerLinkActive="activo">Gestión de Usuarios</a>
-</nav>
+
+            <a
+              *ngIf="esAdministrador()"
+              routerLink="/dashboard"
+              routerLinkActive="activo">
+              Dashboard
+            </a>
+
+            <a routerLink="/produccion" routerLinkActive="activo">
+              Producción
+            </a>
+
+            <a routerLink="/bodega" routerLinkActive="activo">
+              Bodega
+            </a>
+
+            <a routerLink="/pedidos-despacho" routerLinkActive="activo">
+              Pedidos/Despacho
+            </a>
+
+            <a
+              *ngIf="esAdministrador()"
+              routerLink="/pagos-cobros"
+              routerLinkActive="activo">
+              Pagos/Cobros
+            </a>
+
+            <a
+              *ngIf="esAdministrador()"
+              routerLink="/clientes-saldos"
+              routerLinkActive="activo">
+              Clientes/Saldos
+            </a>
+
+            <a
+              *ngIf="esAdministrador()"
+              routerLink="/reportes"
+              routerLinkActive="activo">
+              Reportes
+            </a>
+
+            <a
+              *ngIf="esAdministrador()"
+              routerLink="/gestion-usuarios"
+              routerLinkActive="activo">
+              Gestión de Usuarios
+            </a>
+
+          </nav>
     </aside>
 
     <main class="contenido">

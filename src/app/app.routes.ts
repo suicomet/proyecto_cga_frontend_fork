@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, authChildGuard } from './core/guards/auth.guard';
+import { adminGuard, authGuard, authChildGuard } from './core/guards/auth.guard';
 
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
@@ -32,7 +32,8 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        component: Dashboard
+        component: Dashboard,
+        canActivate: [adminGuard]
       },
       {
         path: 'produccion',
@@ -48,19 +49,23 @@ export const routes: Routes = [
       },
       {
         path: 'pagos-cobros',
-        component: PagosCobros
+        component: PagosCobros,
+        canActivate: [adminGuard]
       },
       {
         path: 'clientes-saldos',
-        component: ClientesSaldos
+        component: ClientesSaldos,
+        canActivate: [adminGuard]
       },
       {
         path: 'reportes',
-        component: Reportes
+        component: Reportes,
+        canActivate: [adminGuard]
       },
       {
         path: 'gestion-usuarios',
-        component: GestionUsuarios
+        component: GestionUsuarios,
+        canActivate: [adminGuard]
       }
     ]
   }

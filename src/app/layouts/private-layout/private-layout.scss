@@ -49,15 +49,20 @@
   color: var(--color-sidebar-texto-suave);
   font-weight: 600;
 }
-
-/* Rol usuario */
-.rol-usuario {
+.zona-usuario {
   display: flex;
-  flex-direction: column;
   justify-content: flex-end;
-  align-items: flex-end;
-  padding: 0 1.5rem 0.8rem 1.5rem;
-  text-align: right;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+}
+/* Rol usuario */
+.zona-usuario {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
 }
 
 .rol-usuario span {
@@ -72,7 +77,20 @@
   color: #ffffff;
   font-size: 0.85rem;
 }
+.boton-salir {
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
 
+.boton-salir:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
 /* Cuerpo principal */
 .cuerpo-sistema {
   flex: 1;

@@ -21,3 +21,18 @@ export const authGuard: CanActivateFn = () => {
 export const authChildGuard: CanActivateChildFn = () => {
   return validarAutenticacion();
 };
+
+export const adminGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  if (!authService.estaAutenticado()) {
+    return router.createUrlTree(['/login']);
+  }
+
+  if (authService.esAdministrador()) {
+    return true;
+  }
+
+  return router.createUrlTree(['/produccion']);
+};

@@ -32,9 +32,17 @@ export class Login {
     this.cargando = true;
 
     this.authService.iniciarSesion(this.usuario, this.password).subscribe({
-      next: () => {
+      next: (usuario) => {
         this.cargando = false;
-        this.router.navigate(['/dashboard']);
+
+        const esAdministrador = usuario.is_superuser || usuario.roles.includes('Administrador');
+
+        if (esAdministrador) {
+          this.router.navigate(['/dashboard']);
+          return;
+        }
+
+        this.router.navigate(['/produccion']);
       },
       error: () => {
         this.cargando = false;
