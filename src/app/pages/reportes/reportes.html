@@ -1,0 +1,111 @@
+<div class="encabezado-pagina">
+  <h1>Reportes</h1>
+  <p>Consulta administrativa de stock, conteos y diferencias operativas</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="date"
+    value="2026-04-13"
+  />
+
+  <select class="campo selector-insumo">
+    <option>Harina</option>
+    <option>Levadura</option>
+    <option>Sal</option>
+    <option>Azúcar</option>
+    <option>Manteca</option>
+  </select>
+
+  <button class="boton-primario">Generar reporte</button>
+</div>
+
+<section class="tarjetas-reportes">
+  <article class="tarjeta-resumen">
+    <span>Stock teórico</span>
+    <strong>100 sacos</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Último conteo físico</span>
+    <strong>98 sacos</strong>
+  </article>
+
+  <article class="tarjeta-resumen alerta">
+    <span>Diferencia</span>
+    <strong>2 sacos</strong>
+  </article>
+</section>
+
+<section class="tarjeta bloque-reporte">
+  <h2>Reporte de stock por insumo</h2>
+
+  <table class="tabla tabla-interna">
+    <thead>
+      <tr>
+        <th>Insumo</th>
+        <th>Fecha consulta</th>
+        <th>Stock teórico</th>
+        <th>Conteo físico</th>
+        <th>Diferencia</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>Harina</td>
+        <td>13-04-2026</td>
+        <td>100 sacos</td>
+        <td>98 sacos</td>
+        <td>2 sacos</td>
+        <td><span class="estado revisar">Revisar</span></td>
+      </tr>
+
+      <tr>
+        <td>Levadura</td>
+        <td>13-04-2026</td>
+        <td>15 unidades</td>
+        <td>15 unidades</td>
+        <td>0</td>
+        <td><span class="estado correcto">Correcto</span></td>
+      </tr>
+
+      <tr>
+        <td>Sal</td>
+        <td>13-04-2026</td>
+        <td>30 kg</td>
+        <td>30 kg</td>
+        <td>0</td>
+        <td><span class="estado correcto">Correcto</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="tarjeta bloque-reporte">
+  <h2>Resumen operativo diario</h2>
+
+  <div class="resumen-operativo">
+    <div>
+      <span>Producción registrada</span>
+      <strong>12,75 quintales</strong>
+    </div>
+
+    <div>
+      <span>Movimientos de bodega</span>
+      <strong>4</strong>
+    </div>
+
+    <div>
+      <span>Pedidos registrados</span>
+      <strong>4</strong>
+    </div>
+
+    <div>
+      <span>Pagos recibidos</span>
+      <strong>$144.000</strong>
+    </div>
+  </div>
+</section>

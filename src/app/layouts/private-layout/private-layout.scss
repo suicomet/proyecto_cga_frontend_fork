@@ -1,0 +1,127 @@
+.layout-privado {
+  --ancho-sidebar: 260px;
+
+  min-height: 100vh;
+  background: var(--color-fondo);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header superior */
+.barra-superior {
+  height: 62px;
+  background: var(--color-header);
+  border-bottom: 1px solid var(--color-sidebar-borde);
+  display: grid;
+  grid-template-columns: var(--ancho-sidebar) 1fr;
+  color: #ffffff;
+}
+
+/* Marca del sistema */
+.marca-sistema {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 1rem;
+  border-right: 1px solid var(--color-sidebar-borde);
+  min-width: 0;
+}
+
+.icono-marca {
+  width: 20px;
+  height: 26px;
+  border: 3px solid var(--color-primario);
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+
+.marca-sistema h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #ffffff;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.marca-sistema p {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-sidebar-texto-suave);
+  font-weight: 600;
+}
+
+/* Rol usuario */
+.rol-usuario {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0 1.5rem 0.8rem 1.5rem;
+  text-align: right;
+}
+
+.rol-usuario span {
+  display: block;
+  color: var(--color-sidebar-texto-suave);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.rol-usuario strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+/* Cuerpo principal */
+.cuerpo-sistema {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--ancho-sidebar);
+  flex: 0 0 var(--ancho-sidebar);
+  background: var(--color-sidebar);
+  border-right: 1px solid var(--color-sidebar-borde);
+  color: var(--color-sidebar-texto);
+}
+
+/* Menú */
+.menu-lateral {
+  display: flex;
+  flex-direction: column;
+  padding-top: 0;
+}
+
+.menu-lateral a {
+  display: block;
+  padding: 0.85rem 1.25rem;
+  border-left: 4px solid transparent;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-sidebar-texto);
+  white-space: nowrap;
+}
+
+.menu-lateral a:hover {
+  background: var(--color-sidebar-hover);
+}
+
+.menu-lateral a.activo {
+  background: var(--color-sidebar-activo);
+  color: #ffffff;
+  border-left-color: #ffffff;
+  font-weight: 700;
+}
+
+/* Contenido */
+.contenido {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  background: var(--color-fondo);
+  overflow: auto;
+}

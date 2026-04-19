@@ -1,0 +1,85 @@
+<div class="encabezado-pagina">
+  <h1>Pagos / Cobros</h1>
+  <p>Registro de pagos recibidos</p>
+</div>
+
+<div class="fila-acciones">
+  <input class="campo" type="text" placeholder="Buscar por cliente o ID..." />
+
+  <select class="campo selector-turno">
+    <option>Todos los turnos</option>
+    <option>Mañana</option>
+    <option>Tarde</option>
+    <option>Noche</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo Registro</button>
+</div>
+
+<section class="grilla-resumen">
+  <article class="tarjeta resumen-item">
+    <p>Total recibido hoy</p>
+    <h2>$226.000</h2>
+  </article>
+
+  <article class="tarjeta resumen-item">
+    <p>Pagos por transferencia</p>
+    <h2>$144.000</h2>
+  </article>
+
+  <article class="tarjeta resumen-item">
+    <p>Pagos en efectivo</p>
+    <h2>$82.000</h2>
+  </article>
+</section>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Cliente</th>
+      <th>Referencia</th>
+      <th>Monto</th>
+      <th>Método</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>PAY001</td>
+      <td>13-04-2026</td>
+      <td>Almacén Don José</td>
+      <td>O001</td>
+      <td>$44.000</td>
+      <td><span class="metodo efectivo">Efectivo</span></td>
+    </tr>
+
+    <tr>
+      <td>PAY002</td>
+      <td>13-04-2026</td>
+      <td>Cafetería Central</td>
+      <td>O002</td>
+      <td>$32.000</td>
+      <td><span class="metodo efectivo">Efectivo</span></td>
+    </tr>
+
+    <tr>
+      <td>PAY003</td>
+      <td>13-04-2026</td>
+      <td>Hotel Bastolo</td>
+      <td>O003</td>
+      <td>$50.000</td>
+      <td><span class="metodo transferencia">Transferencia</span></td>
+    </tr>
+
+    <tr>
+      <td>PAY004</td>
+      <td>13-04-2026</td>
+      <td>Iglesia Hurtado</td>
+      <td>O004</td>
+      <td>$100.000</td>
+      <td><span class="metodo transferencia">Transferencia</span></td>
+    </tr>
+  </tbody>
+</table>

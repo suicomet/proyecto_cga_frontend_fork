@@ -1,0 +1,46 @@
+.pagina-dashboard {
+  max-width: 1180px;
+}
+
+.grilla-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.tarjeta {
+  background: var(--color-superficie);
+  border-color: var(--color-borde);
+}
+
+.tarjeta p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+}
+
+.tarjeta h2 {
+  margin: 0.5rem 0 0;
+  font-size: 1.35rem;
+  color: var(--color-texto);
+}
+
+.resumen-financiero {
+  margin-top: 1.5rem;
+}
+
+.resumen-financiero h2 {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+
+.fila-resumen {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.fila-resumen:last-child {
+  border-bottom: none;
+}

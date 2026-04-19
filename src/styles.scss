@@ -1,1 +1,163 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  /* Colores base estilo panel administrativo */
+  --color-fondo: #f0f3f4;
+  --color-superficie: #ffffff;
+  --color-superficie-blanca: #ffffff;
+  --color-borde: #dfe6e9;
+
+  /* Texto */
+  --color-texto: #2f3a40;
+  --color-texto-suave: #6f7d85;
+  --color-texto-claro: #a8b0b6;
+
+  /* Header / Sidebar */
+  --color-header: #16232d;
+  --color-sidebar: #1b2a34;
+  --color-sidebar-borde: #223643;
+  --color-sidebar-texto: #dce5ea;
+  --color-sidebar-texto-suave: #9fb0bb;
+  --color-sidebar-hover: #243845;
+  --color-sidebar-activo: #209e91;
+
+  /* Identidad visual */
+  --color-primario: #209e91;
+  --color-primario-hover: #17877c;
+  --color-secundario: #2dacd1;
+  --color-menu-activo: #209e91;
+  --color-menu-hover: #243845;
+
+  /* Estados */
+  --color-exito: #90b900;
+  --color-alerta: #dfb81c;
+  --color-error: #e85656;
+  --color-info: #2dacd1;
+
+  /* Diseño */
+  --radio-borde: 4px;
+  --radio-borde-sm: 3px;
+  --sombra-suave: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+  /* Fuente */
+  --fuente-principal: Arial, Helvetica, sans-serif;
+}
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--fuente-principal);
+  background: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+body {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+/* Elementos reutilizables */
+.tarjeta {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra-suave);
+  padding: 1rem;
+}
+
+.boton-primario {
+  background: var(--color-primario);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radio-borde-sm);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-primario:hover {
+  background: var(--color-primario-hover);
+}
+
+.campo {
+  width: 100%;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde-sm);
+  padding: 0.75rem;
+  outline: none;
+}
+
+.campo:focus {
+  border-color: var(--color-primario);
+}
+
+.encabezado-pagina {
+  margin-bottom: 1.25rem;
+}
+
+.encabezado-pagina h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-texto);
+}
+
+.encabezado-pagina p {
+  margin: 0.35rem 0 0;
+  color: var(--color-texto-suave);
+}
+
+.fila-acciones {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.grilla-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  overflow: hidden;
+}
+
+.tabla th,
+.tabla td {
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--color-borde);
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.tabla th {
+  background: #f3f6f7;
+  color: var(--color-texto-suave);
+  font-weight: 700;
+}
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}

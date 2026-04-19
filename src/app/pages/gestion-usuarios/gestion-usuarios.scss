@@ -1,0 +1,133 @@
+.selector-rol {
+  max-width: 220px;
+}
+
+.fila-acciones .campo:first-child {
+  flex: 1;
+}
+
+.tarjetas-usuarios {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tarjeta-resumen {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra-suave);
+  padding: 1rem;
+}
+
+.tarjeta-resumen span {
+  display: block;
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  margin-bottom: 0.45rem;
+}
+
+.tarjeta-resumen strong {
+  display: block;
+  color: var(--color-texto);
+  font-size: 1.25rem;
+}
+
+.bloque-permisos {
+  margin-bottom: 1rem;
+}
+
+.bloque-permisos h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+}
+
+.grilla-permisos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.rol-card {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  background: #f9fbfc;
+  padding: 1rem;
+}
+
+.rol-card h3 {
+  margin: 0;
+  color: var(--color-texto);
+  font-size: 1rem;
+}
+
+.rol-card p {
+  margin: 0.35rem 0 0.8rem;
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+}
+
+.rol-card ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--color-texto);
+  font-size: 0.85rem;
+}
+
+.rol-card li {
+  margin-bottom: 0.35rem;
+}
+
+.rol-card.limitado {
+  border-left: 4px solid var(--color-alerta);
+}
+
+.rol {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.rol.administrador {
+  color: var(--color-primario);
+}
+
+.rol.encargado {
+  color: var(--color-info);
+}
+
+.estado {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.estado.activo {
+  color: var(--color-exito);
+}
+
+.estado.inactivo {
+  color: var(--color-error);
+}
+
+.boton-detalle {
+  border: none;
+  background: transparent;
+  color: var(--color-primario);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.boton-detalle:hover {
+  color: var(--color-primario-hover);
+}
+
+@media (max-width: 1000px) {
+  .tarjetas-usuarios,
+  .grilla-permisos {
+    grid-template-columns: 1fr;
+  }
+}

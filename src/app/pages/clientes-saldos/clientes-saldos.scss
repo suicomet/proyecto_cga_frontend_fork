@@ -1,0 +1,68 @@
+.selector-saldo {
+  max-width: 220px;
+}
+
+.fila-acciones .campo:first-child {
+  flex: 1;
+}
+
+.tarjetas-clientes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tarjeta-resumen {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  box-shadow: var(--sombra-suave);
+  padding: 1rem;
+}
+
+.tarjeta-resumen span {
+  display: block;
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  margin-bottom: 0.45rem;
+}
+
+.tarjeta-resumen strong {
+  display: block;
+  color: var(--color-texto);
+  font-size: 1.25rem;
+}
+
+.tarjeta-resumen.alerta strong {
+  color: var(--color-error);
+}
+
+.estado {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.estado.pendiente {
+  color: var(--color-error);
+}
+
+.estado.al-dia {
+  color: var(--color-exito);
+}
+
+.estado.favor {
+  color: var(--color-info);
+}
+
+@media (max-width: 1100px) {
+  .tarjetas-clientes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .tarjetas-clientes {
+    grid-template-columns: 1fr;
+  }
+}

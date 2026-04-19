@@ -1,0 +1,104 @@
+<div class="encabezado-pagina">
+  <h1>Gestión de Usuarios</h1>
+  <p>Administración de usuarios, roles y permisos del sistema</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="text"
+    placeholder="Buscar por nombre, correo o rol..."
+  />
+
+  <select class="campo selector-rol">
+    <option>Todos los roles</option>
+    <option>Administrador</option>
+    <option>Encargado de turno</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo usuario</button>
+</div>
+
+<section class="tarjetas-usuarios">
+  <article class="tarjeta-resumen">
+    <span>Usuarios registrados</span>
+    <strong>2</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Administradores</span>
+    <strong>1</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Encargados de turno</span>
+    <strong>1</strong>
+  </article>
+</section>
+
+<section class="tarjeta bloque-permisos">
+  <h2>Permisos por rol</h2>
+
+  <div class="grilla-permisos">
+    <article class="rol-card">
+      <h3>Administrador</h3>
+      <p>Acceso completo al sistema.</p>
+
+      <ul>
+        <li>Dashboard</li>
+        <li>Producción</li>
+        <li>Bodega</li>
+        <li>Pedidos / Despacho</li>
+        <li>Pagos / Cobros</li>
+        <li>Clientes / Saldos</li>
+        <li>Reportes</li>
+        <li>Gestión de Usuarios</li>
+      </ul>
+    </article>
+
+    <article class="rol-card limitado">
+      <h3>Encargado de turno</h3>
+      <p>Acceso operativo limitado.</p>
+
+      <ul>
+        <li>Producción</li>
+        <li>Bodega</li>
+        <li>Pedidos / Despacho</li>
+        <li>Pagos / Cobros</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Correo</th>
+      <th>Rol asignado</th>
+      <th>Estado</th>
+      <th>Acción</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Administrador</td>
+      <td>admin&#64;lapaloma.cl</td>
+      <td><span class="rol administrador">Administrador</span></td>
+      <td><span class="estado activo">Activo</span></td>
+      <td><button class="boton-detalle">Editar permisos</button></td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td>Encargado de turno</td>
+      <td>encargado&#64;lapaloma.cl</td>
+      <td><span class="rol encargado">Encargado de turno</span></td>
+      <td><span class="estado activo">Activo</span></td>
+      <td><button class="boton-detalle">Editar permisos</button></td>
+    </tr>
+  </tbody>
+</table>

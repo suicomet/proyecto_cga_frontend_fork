@@ -1,0 +1,130 @@
+<div class="encabezado-pagina">
+  <h1>Bodega</h1>
+  <p>Control de insumos, movimientos y conteos físicos</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="text"
+    placeholder="Buscar por insumo..."
+  />
+
+  <select class="campo selector-movimiento">
+    <option>Todos los movimientos</option>
+    <option>Entrada</option>
+    <option>Salida</option>
+    <option>Ajuste</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo movimiento</button>
+</div>
+
+<section class="tarjetas-bodega">
+  <article class="tarjeta-resumen">
+    <span>Insumos activos</span>
+    <strong>5</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Último conteo físico</span>
+    <strong>13-04-2026</strong>
+  </article>
+
+  <article class="tarjeta-resumen alerta">
+    <span>Diferencias detectadas</span>
+    <strong>2</strong>
+  </article>
+</section>
+
+<section class="tarjeta bloque-stock">
+  <h2>Resumen de insumos</h2>
+
+  <div class="grilla-stock">
+    <article class="stock-item">
+      <p>Harina</p>
+      <strong>100 sacos</strong>
+      <span class="texto-normal">Stock sugerido: 120 sacos</span>
+    </article>
+
+    <article class="stock-item stock-bajo">
+      <p>Levadura</p>
+      <strong>15 unidades</strong>
+      <span>Revisar stock</span>
+    </article>
+
+    <article class="stock-item">
+      <p>Sal</p>
+      <strong>30 kg</strong>
+      <span class="texto-normal">Sin diferencias</span>
+    </article>
+
+    <article class="stock-item">
+      <p>Azúcar</p>
+      <strong>75 kg</strong>
+      <span class="texto-normal">Sin diferencias</span>
+    </article>
+
+    <article class="stock-item">
+      <p>Manteca</p>
+      <strong>40 kg</strong>
+      <span class="texto-normal">Sin diferencias</span>
+    </article>
+  </div>
+</section>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Insumo</th>
+      <th>Tipo movimiento</th>
+      <th>Cantidad</th>
+      <th>Turno</th>
+      <th>Jornada</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>13-04-2026</td>
+      <td>Harina</td>
+      <td><span class="estado entrada">Entrada</span></td>
+      <td>20 sacos</td>
+      <td>Madrugada</td>
+      <td>13-04-2026</td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td>13-04-2026</td>
+      <td>Harina</td>
+      <td><span class="estado salida">Salida</span></td>
+      <td>4,50 sacos</td>
+      <td>Madrugada</td>
+      <td>13-04-2026</td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+      <td>13-04-2026</td>
+      <td>Levadura</td>
+      <td><span class="estado salida">Salida</span></td>
+      <td>5 unidades</td>
+      <td>Mañana</td>
+      <td>13-04-2026</td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+      <td>13-04-2026</td>
+      <td>Sal</td>
+      <td><span class="estado ajuste">Ajuste</span></td>
+      <td>2 kg</td>
+      <td>Tarde</td>
+      <td>13-04-2026</td>
+    </tr>
+  </tbody>
+</table>

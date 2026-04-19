@@ -1,0 +1,108 @@
+.selector-movimiento {
+  max-width: 210px;
+}
+
+.fila-acciones .campo:first-child {
+  flex: 1;
+}
+
+.tarjetas-bodega {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 18px 0;
+}
+
+.tarjeta-resumen {
+  background: #ffffff;
+  border: 1px solid #dce3e6;
+  box-shadow: 0 2px 8px rgba(15, 37, 48, 0.08);
+  padding: 18px;
+}
+
+.tarjeta-resumen span {
+  display: block;
+  color: #6c7a82;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.tarjeta-resumen strong {
+  color: #1c2d36;
+  font-size: 22px;
+}
+
+.tarjeta-resumen.alerta strong {
+  color: var(--color-error);
+}
+
+.bloque-stock {
+  margin-bottom: 18px;
+}
+
+.bloque-stock h2 {
+  margin-top: 0;
+  font-size: 18px;
+  color: #1c2d36;
+}
+
+.grilla-stock {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.stock-item {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-borde);
+  padding: 16px;
+  background: #f9fbfc;
+}
+
+.stock-item p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: 14px;
+}
+
+.stock-item strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 17px;
+  color: #1c2d36;
+}
+
+.stock-item span {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-error);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stock-item .texto-normal {
+  color: var(--color-texto-suave);
+}
+
+.estado {
+  font-weight: 700;
+}
+
+.estado.entrada {
+  color: var(--color-exito);
+}
+
+.estado.salida {
+  color: var(--color-error);
+}
+
+.estado.ajuste {
+  color: #d88a00;
+}
+
+@media (max-width: 1000px) {
+  .tarjetas-bodega,
+  .grilla-stock {
+    grid-template-columns: 1fr;
+  }
+}

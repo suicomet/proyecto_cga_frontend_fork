@@ -1,0 +1,40 @@
+<div class="layout-privado">
+
+  <header class="barra-superior">
+    <div class="marca-sistema">
+      <div class="icono-marca"></div>
+
+      <div>
+        <h2>Control de Producción</h2>
+        <p>Panadería</p>
+      </div>
+    </div>
+
+    <div class="rol-usuario">
+      <span>Rol</span>
+      <strong>Administrador</strong>
+    </div>
+  </header>
+
+  <div class="cuerpo-sistema">
+
+    <aside class="sidebar">
+      <nav class="menu-lateral">
+  <a routerLink="/dashboard" routerLinkActive="activo">Dashboard</a>
+  <a routerLink="/produccion" routerLinkActive="activo">Producción</a>
+  <a routerLink="/bodega" routerLinkActive="activo">Bodega</a>
+  <a routerLink="/pedidos-despacho" routerLinkActive="activo">Pedidos/Despacho</a>
+  <a routerLink="/pagos-cobros" routerLinkActive="activo">Pagos/Cobros</a>
+  <a routerLink="/clientes-saldos" routerLinkActive="activo">Clientes/Saldos</a>
+  <a routerLink="/reportes" routerLinkActive="activo">Reportes</a>
+  <a routerLink="/gestion-usuarios" routerLinkActive="activo">Gestión de Usuarios</a>
+</nav>
+    </aside>
+
+    <main class="contenido">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>

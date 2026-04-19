@@ -1,3 +1,63 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { Login } from './pages/login/login';
+import { Dashboard } from './pages/dashboard/dashboard';
+import { Produccion } from './pages/produccion/produccion';
+import { Bodega } from './pages/bodega/bodega';
+import { PedidosDespacho } from './pages/pedidos-despacho/pedidos-despacho';
+import { PagosCobros } from './pages/pagos-cobros/pagos-cobros';
+import { ClientesSaldos } from './pages/clientes-saldos/clientes-saldos';
+import { Reportes } from './pages/reportes/reportes';
+import { GestionUsuarios } from './pages/gestion-usuarios/gestion-usuarios';
+
+import { PrivateLayout } from './layouts/private-layout/private-layout';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    component: Login
+  },
+  {
+    path: '',
+    component: PrivateLayout,
+    children: [
+      {
+        path: 'dashboard',
+        component: Dashboard
+      },
+      {
+        path: 'produccion',
+        component: Produccion
+      },
+      {
+        path: 'bodega',
+        component: Bodega
+      },
+      {
+        path: 'pedidos-despacho',
+        component: PedidosDespacho
+      },
+      {
+        path: 'pagos-cobros',
+        component: PagosCobros
+      },
+      {
+        path: 'clientes-saldos',
+        component: ClientesSaldos
+      },
+      {
+        path: 'reportes',
+        component: Reportes
+      },
+      {
+        path: 'gestion-usuarios',
+        component: GestionUsuarios
+      }
+    ]
+  }
+];

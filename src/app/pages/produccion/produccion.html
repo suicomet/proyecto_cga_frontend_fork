@@ -1,0 +1,84 @@
+<div class="encabezado-pagina">
+  <h1>Producción</h1>
+  <p>Registro de producción diaria por jornada, turno y tipo de producción</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="text"
+    placeholder="Buscar por tipo de producción..."
+  />
+
+  <select class="campo selector-turno">
+    <option>Todos los turnos</option>
+    <option>Madrugada</option>
+    <option>Mañana</option>
+    <option>Tarde</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo registro</button>
+</div>
+
+<div class="tarjetas-resumen-produccion">
+  <div class="tarjeta-resumen">
+    <span>Total producido hoy</span>
+    <strong>12,75 quintales</strong>
+  </div>
+
+  <div class="tarjeta-resumen">
+    <span>Turno con mayor producción</span>
+    <strong>Mañana</strong>
+  </div>
+
+  <div class="tarjeta-resumen">
+    <span>Tipos registrados</span>
+    <strong>3</strong>
+  </div>
+</div>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Turno</th>
+      <th>Tipo de producción</th>
+      <th>Quintales</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>13-04-2026</td>
+      <td>Madrugada</td>
+      <td>Pan corriente</td>
+      <td>4,50</td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td>13-04-2026</td>
+      <td>Mañana</td>
+      <td>Pan corriente</td>
+      <td>5,25</td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+      <td>13-04-2026</td>
+      <td>Tarde</td>
+      <td>Pan integral</td>
+      <td>2,00</td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+      <td>13-04-2026</td>
+      <td>Tarde</td>
+      <td>Pan especial</td>
+      <td>1,00</td>
+    </tr>
+  </tbody>
+</table>

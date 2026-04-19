@@ -1,0 +1,104 @@
+<div class="encabezado-pagina">
+  <h1>Clientes / Saldos</h1>
+  <p>Consulta administrativa de ventas, pagos y saldos acumulados por cliente</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="text"
+    placeholder="Buscar por cliente, RUT o ID..."
+  />
+
+  <select class="campo selector-saldo">
+    <option>Todos los saldos</option>
+    <option>Con saldo pendiente</option>
+    <option>Sin deuda</option>
+    <option>Con pago a favor</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo cliente</button>
+</div>
+
+<section class="tarjetas-clientes">
+  <article class="tarjeta-resumen">
+    <span>Clientes registrados</span>
+    <strong>6</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Ventas del día</span>
+    <strong>$226.000</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Pagos recibidos</span>
+    <strong>$144.000</strong>
+  </article>
+
+  <article class="tarjeta-resumen alerta">
+    <span>Saldo pendiente total</span>
+    <strong>$82.000</strong>
+  </article>
+</section>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>RUT</th>
+      <th>Cliente</th>
+      <th>Venta día</th>
+      <th>Pago día</th>
+      <th>Saldo día</th>
+      <th>Saldo acumulado</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>12.345.678-9</td>
+      <td>Paradero 18</td>
+      <td>$43.020</td>
+      <td>$30.000</td>
+      <td>$13.020</td>
+      <td>$28.000</td>
+      <td><span class="estado pendiente">Pendiente</span></td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td>10.222.333-4</td>
+      <td>Paradero 8</td>
+      <td>$37.200</td>
+      <td>$37.200</td>
+      <td>$0</td>
+      <td>$0</td>
+      <td><span class="estado al-dia">Al día</span></td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+      <td>8.765.432-1</td>
+      <td>Collao</td>
+      <td>$22.000</td>
+      <td>$10.000</td>
+      <td>$12.000</td>
+      <td>$35.000</td>
+      <td><span class="estado pendiente">Pendiente</span></td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+      <td>14.555.666-7</td>
+      <td>Abarrotes Kathy</td>
+      <td>$23.900</td>
+      <td>$30.000</td>
+      <td>-$6.100</td>
+      <td>-$6.100</td>
+      <td><span class="estado favor">Pago a favor</span></td>
+    </tr>
+  </tbody>
+</table>

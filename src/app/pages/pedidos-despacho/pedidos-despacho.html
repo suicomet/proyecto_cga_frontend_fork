@@ -1,0 +1,104 @@
+<div class="encabezado-pagina">
+  <h1>Pedidos / Despacho</h1>
+  <p>Registro de pedidos, distribución y productos solicitados</p>
+</div>
+
+<div class="fila-acciones">
+  <input
+    class="campo"
+    type="text"
+    placeholder="Buscar por cliente, producto o ID..."
+  />
+
+  <select class="campo selector-distribucion">
+    <option>Todas las distribuciones</option>
+    <option>Ricardo</option>
+    <option>Osvaldo</option>
+    <option>Retiro Panadería</option>
+  </select>
+
+  <button class="boton-primario">+ Nuevo pedido</button>
+</div>
+
+<section class="tarjetas-pedidos">
+  <article class="tarjeta-resumen">
+    <span>Pedidos del día</span>
+    <strong>4</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Distribuciones activas</span>
+    <strong>3</strong>
+  </article>
+
+  <article class="tarjeta-resumen">
+    <span>Productos solicitados</span>
+    <strong>8</strong>
+  </article>
+</section>
+
+<table class="tabla">
+  <thead>
+    <tr>
+      <th>ID Pedido</th>
+      <th>Fecha pedido</th>
+      <th>Entrega solicitada</th>
+      <th>Cliente</th>
+      <th>Distribución</th>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Unidad</th>
+      <th>Precio cobrado</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>13-04-2026</td>
+      <td>13-04-2026</td>
+      <td>Paradero 18</td>
+      <td>Ricardo</td>
+      <td>Pan corriente</td>
+      <td>18,00</td>
+      <td>Kilo</td>
+      <td>$43.020</td>
+    </tr>
+
+    <tr>
+      <td>2</td>
+      <td>13-04-2026</td>
+      <td>13-04-2026</td>
+      <td>Paradero 8</td>
+      <td>Osvaldo</td>
+      <td>Pan integral</td>
+      <td>12,00</td>
+      <td>Kilo</td>
+      <td>$37.200</td>
+    </tr>
+
+    <tr>
+      <td>3</td>
+      <td>13-04-2026</td>
+      <td>13-04-2026</td>
+      <td>Collao</td>
+      <td>Ricardo</td>
+      <td>Pan especial</td>
+      <td>40,00</td>
+      <td>Unidad</td>
+      <td>$22.000</td>
+    </tr>
+
+    <tr>
+      <td>4</td>
+      <td>13-04-2026</td>
+      <td>13-04-2026</td>
+      <td>Abarrotes Kathy</td>
+      <td>Retiro Panadería</td>
+      <td>Pan corriente</td>
+      <td>10,00</td>
+      <td>Kilo</td>
+      <td>$23.900</td>
+    </tr>
+  </tbody>
+</table>
