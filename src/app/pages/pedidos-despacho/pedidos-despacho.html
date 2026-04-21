@@ -1,104 +1,581 @@
-<div class="encabezado-pagina">
-  <h1>Pedidos / Despacho</h1>
-  <p>Registro de pedidos, distribución y productos solicitados</p>
-</div>
+<section class="pedidos-page">
+  <div class="encabezado">
+    <div>
+      <h1>Pedidos/Despacho</h1>
+      <p>Registro de pedidos, clientes, productos y distribución asociada.</p>
+    </div>
 
-<div class="fila-acciones">
-  <input
-    class="campo"
-    type="text"
-    placeholder="Buscar por cliente, producto o ID..."
-  />
+    <button class="btn-principal" type="button" (click)="abrirModalPedido()">
+      + Nuevo pedido
+    </button>
+  </div>
 
-  <select class="campo selector-distribucion">
-    <option>Todas las distribuciones</option>
-    <option>Ricardo</option>
-    <option>Osvaldo</option>
-    <option>Retiro Panadería</option>
-  </select>
+  @if (mensajeError()) {
+    <div class="alerta alerta-error">
+      {{ mensajeError() }}
+    </div>
+  }
 
-  <button class="boton-primario">+ Nuevo pedido</button>
-</div>
+  @if (mensajeExito()) {
+    <div class="alerta alerta-exito">
+      {{ mensajeExito() }}
+    </div>
+  }
 
-<section class="tarjetas-pedidos">
-  <article class="tarjeta-resumen">
-    <span>Pedidos del día</span>
-    <strong>4</strong>
-  </article>
+  <div class="resumen-grid">
+    <article class="tarjeta-resumen">
+      <span class="etiqueta">Pedidos cargados</span>
+      <strong>{{ pedidos().length }}</strong>
+    </article>
 
-  <article class="tarjeta-resumen">
-    <span>Distribuciones activas</span>
-    <strong>3</strong>
-  </article>
+    <article class="tarjeta-resumen">
+      <span class="etiqueta">Pedidos visibles</span>
+      <strong>{{ pedidosFiltrados.length }}</strong>
+    </article>
 
-  <article class="tarjeta-resumen">
-    <span>Productos solicitados</span>
-    <strong>8</strong>
-  </article>
+    <article class="tarjeta-resumen">
+      <span class="etiqueta">Clientes registrados</span>
+      <strong>{{ clientes().length }}</strong>
+    </article>
+  </div>
+
+  <div class="panel-filtros">
+    <div class="campo-filtro">
+      <label for="busquedaPedidos">Buscar cliente, producto o distribución</label>
+      <input
+        id="busquedaPedidos"
+        type="text"
+        [(ngModel)]="textoBusqueda"
+        placeholder="Ej: Paradero 18, Hallulla, Ricardo"
+      />
+    </div>
+
+    <div class="campo-filtro">
+      <label for="distribucionFiltro">Distribución</label>
+      <select id="distribucionFiltro" [(ngModel)]="distribucionSeleccionada">
+        <option value="">Todas</option>
+        @for (distribucion of distribucionesFormulario; track distribucion.id_distribucion) {
+          <option [value]="distribucion.nombre_distribucion">
+            {{ formatearDistribucion(distribucion.nombre_distribucion) }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="acciones-filtros">
+      <button type="button" class="btn-secundario" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
+    </div>
+  </div>
+
+  <div class="tabla-wrapper">
+    @if (cargando()) {
+      <div class="estado-tabla">Cargando pedidos...</div>
+    } @else if (pedidosFiltrados.length === 0) {
+      <div class="estado-tabla">No hay pedidos para los filtros seleccionados.</div>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha pedido</th>
+            <th>Entrega</th>
+            <th>Cliente</th>
+            <th>Distribución</th>
+            <th>Detalles</th>
+            <th>Total estimado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (pedido of pedidosFiltrados; track pedido.id_pedido) {
+            <tr>
+              <td>{{ pedido.id_pedido }}</td>
+              <td>{{ formatearFecha(pedido.fecha_pedido) }}</td>
+              <td>{{ formatearFecha(pedido.fecha_entrega_solicitada) }}</td>
+              <td>{{ pedido.cliente_nombre }}</td>
+              <td>{{ formatearDistribucion(pedido.distribucion_nombre) }}</td>
+              <td>
+                <details>
+                  <summary>{{ pedido.detalles.length }} producto(s)</summary>
+
+                  <div class="detalle-lista">
+                    @for (detalle of pedido.detalles; track detalle.id_detalle_pedido) {
+                      <div class="detalle-item">
+                        <strong>{{ detalle.producto_nombre }}</strong>
+                        <span>
+                          {{ formatearCantidad(detalle.cantidad_solicitada) }}
+                          {{ detalle.unidad_medida }}
+                          · {{ formatearDinero(detalle.precio_cobrado) }}
+
+                          @if (esAdmin) {
+                            <span>
+                              · Desc. {{ formatearDescuento(detalle.descuento_porcentaje_aplicado) }}
+                            </span>
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+                </details>
+              </td>
+              <td>{{ formatearDinero(calcularTotalPedido(pedido)) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
 </section>
 
-<table class="tabla">
-  <thead>
-    <tr>
-      <th>ID Pedido</th>
-      <th>Fecha pedido</th>
-      <th>Entrega solicitada</th>
-      <th>Cliente</th>
-      <th>Distribución</th>
-      <th>Producto</th>
-      <th>Cantidad</th>
-      <th>Unidad</th>
-      <th>Precio cobrado</th>
-    </tr>
-  </thead>
+@if (modalPedidoAbierto) {
+  <div class="modal-backdrop" (click)="cerrarModalPedido()"></div>
 
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>13-04-2026</td>
-      <td>13-04-2026</td>
-      <td>Paradero 18</td>
-      <td>Ricardo</td>
-      <td>Pan corriente</td>
-      <td>18,00</td>
-      <td>Kilo</td>
-      <td>$43.020</td>
-    </tr>
+  <section class="modal-panel modal-panel-grande" role="dialog" aria-modal="true" aria-labelledby="tituloModalPedido">
+    <div class="modal-header">
+      <div>
+        <h2 id="tituloModalPedido">Nuevo pedido</h2>
+        <p>Crea un pedido y agrega sus productos solicitados.</p>
+      </div>
 
-    <tr>
-      <td>2</td>
-      <td>13-04-2026</td>
-      <td>13-04-2026</td>
-      <td>Paradero 8</td>
-      <td>Osvaldo</td>
-      <td>Pan integral</td>
-      <td>12,00</td>
-      <td>Kilo</td>
-      <td>$37.200</td>
-    </tr>
+      <button type="button" class="btn-cerrar" (click)="cerrarModalPedido()">×</button>
+    </div>
 
-    <tr>
-      <td>3</td>
-      <td>13-04-2026</td>
-      <td>13-04-2026</td>
-      <td>Collao</td>
-      <td>Ricardo</td>
-      <td>Pan especial</td>
-      <td>40,00</td>
-      <td>Unidad</td>
-      <td>$22.000</td>
-    </tr>
+    <div class="modal-body">
+      <div class="grid-dos-columnas">
+        <div class="campo-formulario">
+          <label for="fechaPedido">Fecha pedido *</label>
+          <input
+            id="fechaPedido"
+            type="date"
+            [(ngModel)]="formularioPedido.fecha_pedido"
+          />
+        </div>
 
-    <tr>
-      <td>4</td>
-      <td>13-04-2026</td>
-      <td>13-04-2026</td>
-      <td>Abarrotes Kathy</td>
-      <td>Retiro Panadería</td>
-      <td>Pan corriente</td>
-      <td>10,00</td>
-      <td>Kilo</td>
-      <td>$23.900</td>
-    </tr>
-  </tbody>
-</table>
+        <div class="campo-formulario">
+          <label for="fechaEntrega">Fecha entrega *</label>
+          <input
+            id="fechaEntrega"
+            type="date"
+            [(ngModel)]="formularioPedido.fecha_entrega_solicitada"
+          />
+        </div>
+      </div>
+
+      <div class="grid-dos-columnas">
+        <div class="campo-formulario">
+          <label for="clientePedido">Cliente *</label>
+          <div class="fila-con-accion">
+            <select
+              id="clientePedido"
+              [(ngModel)]="formularioPedido.id_cliente"
+              (ngModelChange)="alCambiarCliente()"
+            >
+              <option [ngValue]="0">Seleccione un cliente</option>
+              @for (cliente of clientes(); track cliente.id_cliente) {
+                <option [ngValue]="cliente.id_cliente">
+                  {{ obtenerTextoCliente(cliente) }}
+                </option>
+              }
+            </select>
+
+            @if (esAdmin) {
+              <button type="button" class="btn-secundario" (click)="abrirModalCliente()">
+                + Cliente
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="campo-formulario">
+          <label for="distribucionPedido">Distribución *</label>
+          <div class="fila-con-accion">
+            <select id="distribucionPedido" [(ngModel)]="formularioPedido.id_distribucion">
+              <option [ngValue]="0">Seleccione distribución</option>
+              @for (distribucion of distribucionesFormulario; track distribucion.id_distribucion) {
+                <option [ngValue]="distribucion.id_distribucion">
+                  {{ formatearDistribucion(distribucion.nombre_distribucion) }}
+                </option>
+              }
+            </select>
+
+            @if (esAdmin) {
+              <button type="button" class="btn-secundario" (click)="abrirModalDistribucion()">
+                + Distribución
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-detalle">
+        <h3>Agregar detalle</h3>
+
+        <div class="campo-formulario">
+          <label for="productoDetalle">Producto *</label>
+          <div class="fila-con-accion">
+            <select
+              id="productoDetalle"
+              [(ngModel)]="formularioDetalle.id_producto"
+              (ngModelChange)="alCambiarProducto()"
+            >
+              <option [ngValue]="0">Seleccione producto</option>
+              @for (producto of productos(); track producto.id_producto) {
+                <option [ngValue]="producto.id_producto">
+                  {{ obtenerTextoProducto(producto) }}
+                </option>
+              }
+            </select>
+
+            @if (esAdmin) {
+              <button type="button" class="btn-secundario" (click)="abrirModalProducto()">
+                + Producto
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="grid-cuatro-columnas">
+          <div class="campo-formulario">
+            <label for="cantidadDetalle">Cantidad *</label>
+            <input
+              id="cantidadDetalle"
+              type="number"
+              min="0.01"
+              step="0.01"
+              [(ngModel)]="formularioDetalle.cantidad_solicitada"
+              placeholder="Ej: 10.00"
+            />
+          </div>
+
+          <div class="campo-formulario">
+            <label for="unidadDetalle">Unidad</label>
+            <select
+              id="unidadDetalle"
+              [(ngModel)]="formularioDetalle.unidad_medida"
+              (ngModelChange)="alCambiarUnidad()"
+            >
+              @for (unidad of opcionesUnidadDetalle; track unidad) {
+                <option [value]="unidad">
+                  {{ unidad === 'KILO' ? 'Kilo' : 'Unidad' }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="campo-formulario">
+            <label for="precioDetalle">Precio cobrado *</label>
+            <input
+              id="precioDetalle"
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="formularioDetalle.precio_cobrado"
+              [readonly]="!esAdmin"
+            />
+          </div>
+
+          @if (esAdmin) {
+            <div class="campo-formulario">
+              <label for="descuentoDetalle">Descuento aplicado (%)</label>
+              <input
+                id="descuentoDetalle"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                [(ngModel)]="formularioDetalle.descuento_porcentaje_aplicado"
+                (ngModelChange)="alCambiarDescuento()"
+                placeholder="Ej: 5 para -5%"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="acciones-detalle">
+          <button type="button" class="btn-secundario" (click)="agregarDetalle()">
+            Agregar detalle
+          </button>
+        </div>
+      </div>
+
+      @if (detallesPendientes.length > 0) {
+        <div class="tabla-detalles-pendientes">
+          <h3>Detalles del pedido</h3>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Precio final</th>
+
+                @if (esAdmin) {
+                  <th>Descuento</th>
+                }
+
+                <th>Total</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (detalle of detallesPendientes; track $index) {
+                <tr>
+                  <td>{{ detalle.producto_nombre }}</td>
+                  <td>{{ formatearCantidad(detalle.cantidad_solicitada) }}</td>
+                  <td>{{ detalle.unidad_medida }}</td>
+                  <td>{{ formatearDinero(detalle.precio_cobrado) }}</td>
+
+                  @if (esAdmin) {
+                    <td>{{ formatearDescuento(detalle.descuento_porcentaje_aplicado) }}</td>
+                  }
+
+                  <td>{{ formatearDinero(calcularTotalDetalle(detalle)) }}</td>
+                  <td>
+                    <button type="button" class="btn-tabla btn-peligro" (click)="quitarDetalle($index)">
+                      Quitar
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (mensajeError()) {
+        <div class="alerta alerta-error espacio-modal">
+          {{ mensajeError() }}
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secundario" (click)="cerrarModalPedido()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn-principal"
+        (click)="guardarPedido()"
+        [disabled]="guardandoPedido()"
+      >
+        {{ guardandoPedido() ? 'Guardando...' : 'Guardar pedido' }}
+      </button>
+    </div>
+  </section>
+}
+
+@if (modalClienteAbierto) {
+  <div class="modal-backdrop modal-backdrop-secundario"></div>
+
+  <section class="modal-panel modal-panel-secundario" role="dialog" aria-modal="true" aria-labelledby="tituloModalCliente">
+    <div class="modal-header">
+      <div>
+        <h2 id="tituloModalCliente">Nuevo cliente</h2>
+        <p>Registra un cliente disponible para pedidos.</p>
+      </div>
+
+      <button type="button" class="btn-cerrar" (click)="cerrarModalCliente()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="grid-dos-columnas">
+        <div class="campo-formulario">
+          <label for="rutCliente">RUT sin DV *</label>
+          <input id="rutCliente" type="number" [(ngModel)]="formularioCliente.rut" />
+        </div>
+
+        <div class="campo-formulario">
+          <label for="dvCliente">DV *</label>
+          <input id="dvCliente" type="text" maxlength="1" [(ngModel)]="formularioCliente.digito_verificador" />
+        </div>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="nombreCliente">Nombre cliente *</label>
+        <input id="nombreCliente" type="text" [(ngModel)]="formularioCliente.nombre_cliente" />
+      </div>
+
+      <div class="grid-dos-columnas">
+        <div class="campo-formulario">
+          <label for="ciudadCliente">Ciudad *</label>
+          <input id="ciudadCliente" type="text" [(ngModel)]="formularioCliente.ciudad" />
+        </div>
+
+        <div class="campo-formulario">
+          <label for="telefonoCliente">Teléfono *</label>
+          <input id="telefonoCliente" type="text" [(ngModel)]="formularioCliente.telefono" />
+        </div>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="direccionCliente">Dirección *</label>
+        <input id="direccionCliente" type="text" [(ngModel)]="formularioCliente.direccion" />
+      </div>
+
+      <div class="campo-formulario">
+        <label for="descuentoCliente">Descuento aplicado (%)</label>
+        <input
+          id="descuentoCliente"
+          type="number"
+          min="0"
+          max="100"
+          step="0.01"
+          [(ngModel)]="formularioCliente.descuento_aplicado"
+          placeholder="Ej: 5 para -5%"
+        />
+      </div>
+
+      @if (mensajeErrorCliente()) {
+        <div class="alerta alerta-error espacio-modal">
+          {{ mensajeErrorCliente() }}
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secundario" (click)="cerrarModalCliente()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn-principal"
+        (click)="guardarCliente()"
+        [disabled]="guardandoCliente()"
+      >
+        {{ guardandoCliente() ? 'Guardando...' : 'Guardar cliente' }}
+      </button>
+    </div>
+  </section>
+}
+
+@if (modalProductoAbierto) {
+  <div class="modal-backdrop modal-backdrop-secundario"></div>
+
+  <section class="modal-panel modal-panel-secundario" role="dialog" aria-modal="true" aria-labelledby="tituloModalProducto">
+    <div class="modal-header">
+      <div>
+        <h2 id="tituloModalProducto">Nuevo producto</h2>
+        <p>Registra un producto disponible para pedidos.</p>
+      </div>
+
+      <button type="button" class="btn-cerrar" (click)="cerrarModalProducto()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="campo-formulario">
+        <label for="nombreProducto">Nombre producto *</label>
+        <input id="nombreProducto" type="text" [(ngModel)]="formularioProducto.nombre_producto" />
+      </div>
+
+      <div class="grid-dos-columnas">
+        <div class="campo-formulario">
+          <label for="precioProducto">Precio sugerido *</label>
+          <input
+            id="precioProducto"
+            type="number"
+            min="0"
+            step="1"
+            [(ngModel)]="formularioProducto.precio_sugerido"
+          />
+        </div>
+
+        <div class="campo-formulario">
+          <label for="unidadProducto">Unidad venta base</label>
+          <select id="unidadProducto" [(ngModel)]="formularioProducto.unidad_venta_base">
+            <option value="KILO">Kilo</option>
+            <option value="UNIDAD">Unidad</option>
+            <option value="AMBOS">Ambos</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo-formulario">
+        <label for="tipoProducto">Tipo de producción</label>
+        <select id="tipoProducto" [(ngModel)]="formularioProducto.id_tipo_produccion">
+          <option [ngValue]="null">Sin tipo asociado</option>
+          @for (tipo of tiposProduccion(); track tipo.id_tipo_produccion) {
+            <option [ngValue]="tipo.id_tipo_produccion">
+              {{ tipo.nombre_tipo_produccion }}
+            </option>
+          }
+        </select>
+      </div>
+
+      @if (mensajeErrorProducto()) {
+        <div class="alerta alerta-error espacio-modal">
+          {{ mensajeErrorProducto() }}
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secundario" (click)="cerrarModalProducto()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn-principal"
+        (click)="guardarProducto()"
+        [disabled]="guardandoProducto()"
+      >
+        {{ guardandoProducto() ? 'Guardando...' : 'Guardar producto' }}
+      </button>
+    </div>
+  </section>
+}
+
+@if (modalDistribucionAbierto) {
+  <div class="modal-backdrop modal-backdrop-secundario"></div>
+
+  <section class="modal-panel modal-panel-secundario" role="dialog" aria-modal="true" aria-labelledby="tituloModalDistribucion">
+    <div class="modal-header">
+      <div>
+        <h2 id="tituloModalDistribucion">Nueva distribución</h2>
+        <p>Registra una ruta, repartidor o modalidad de retiro.</p>
+      </div>
+
+      <button type="button" class="btn-cerrar" (click)="cerrarModalDistribucion()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="campo-formulario">
+        <label for="nombreDistribucion">Nombre distribución *</label>
+        <input
+          id="nombreDistribucion"
+          type="text"
+          [(ngModel)]="formularioDistribucion.nombre_distribucion"
+          placeholder="Ej: Nuevo repartidor"
+        />
+      </div>
+
+      @if (mensajeErrorDistribucion()) {
+        <div class="alerta alerta-error espacio-modal">
+          {{ mensajeErrorDistribucion() }}
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secundario" (click)="cerrarModalDistribucion()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="btn-principal"
+        (click)="guardarDistribucion()"
+        [disabled]="guardandoDistribucion()"
+      >
+        {{ guardandoDistribucion() ? 'Guardando...' : 'Guardar distribución' }}
+      </button>
+    </div>
+  </section>
+}
