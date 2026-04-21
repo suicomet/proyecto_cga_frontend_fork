@@ -1,104 +1,251 @@
 <div class="encabezado-pagina">
   <h1>Clientes / Saldos</h1>
-  <p>Consulta administrativa de ventas, pagos y saldos acumulados por cliente</p>
+  <p>Consulta administrativa de ventas, pagos acumulados y saldos pendientes por cliente</p>
 </div>
 
 <div class="fila-acciones">
   <input
-    class="campo"
+    class="campo campo-busqueda"
     type="text"
-    placeholder="Buscar por cliente, RUT o ID..."
+    placeholder="Buscar por cliente, RUT, ciudad o ID..."
+    [(ngModel)]="textoBusqueda"
   />
 
-  <select class="campo selector-saldo">
-    <option>Todos los saldos</option>
-    <option>Con saldo pendiente</option>
-    <option>Sin deuda</option>
-    <option>Con pago a favor</option>
+  <select class="campo selector-saldo" [(ngModel)]="filtroSaldo">
+    <option value="todos">Todos los saldos</option>
+    <option value="pendiente">Con saldo pendiente</option>
+    <option value="al-dia">Al día</option>
+    <option value="sin-movimientos">Sin movimientos</option>
   </select>
 
-  <button class="boton-primario">+ Nuevo cliente</button>
+  <select class="campo selector-orden" [(ngModel)]="ordenSeleccionado">
+    <option value="mayor-saldo">Mayor saldo pendiente</option>
+    <option value="menor-saldo">Menor saldo pendiente</option>
+    <option value="mayor-venta">Mayor venta acumulada</option>
+    <option value="cliente-az">Cliente A-Z</option>
+    <option value="cliente-za">Cliente Z-A</option>
+  </select>
+
+  <button class="boton-secundario" type="button" (click)="limpiarFiltros()">
+    Limpiar filtros
+  </button>
+
+  <button class="boton-primario" type="button" (click)="cargarClientesSaldos()">
+    Recargar
+  </button>
 </div>
 
 <section class="tarjetas-clientes">
   <article class="tarjeta-resumen">
     <span>Clientes registrados</span>
-    <strong>6</strong>
+    <strong>{{ totalClientes }}</strong>
   </article>
 
   <article class="tarjeta-resumen">
-    <span>Ventas del día</span>
-    <strong>$226.000</strong>
+    <span>Total vendido</span>
+    <strong>{{ formatearClp(totalVendido) }}</strong>
   </article>
 
   <article class="tarjeta-resumen">
-    <span>Pagos recibidos</span>
-    <strong>$144.000</strong>
+    <span>Pagado acumulado</span>
+    <strong>{{ formatearClp(totalPagado) }}</strong>
   </article>
 
   <article class="tarjeta-resumen alerta">
     <span>Saldo pendiente total</span>
-    <strong>$82.000</strong>
+    <strong>{{ formatearClp(saldoPendienteTotal) }}</strong>
+    <small>{{ clientesConSaldoPendiente }} cliente(s) con saldo</small>
   </article>
 </section>
 
-<table class="tabla">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>RUT</th>
-      <th>Cliente</th>
-      <th>Venta día</th>
-      <th>Pago día</th>
-      <th>Saldo día</th>
-      <th>Saldo acumulado</th>
-      <th>Estado</th>
-    </tr>
-  </thead>
+<div *ngIf="cargando" class="mensaje-estado">
+  Cargando saldos de clientes...
+</div>
 
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>12.345.678-9</td>
-      <td>Paradero 18</td>
-      <td>$43.020</td>
-      <td>$30.000</td>
-      <td>$13.020</td>
-      <td>$28.000</td>
-      <td><span class="estado pendiente">Pendiente</span></td>
-    </tr>
+<div *ngIf="errorCarga && !cargando" class="mensaje-estado error">
+  {{ errorCarga }}
+</div>
 
-    <tr>
-      <td>2</td>
-      <td>10.222.333-4</td>
-      <td>Paradero 8</td>
-      <td>$37.200</td>
-      <td>$37.200</td>
-      <td>$0</td>
-      <td>$0</td>
-      <td><span class="estado al-dia">Al día</span></td>
-    </tr>
+<div *ngIf="!cargando && !errorCarga && clientesFiltrados.length === 0" class="mensaje-estado">
+  No hay clientes que coincidan con los filtros seleccionados.
+</div>
 
-    <tr>
-      <td>3</td>
-      <td>8.765.432-1</td>
-      <td>Collao</td>
-      <td>$22.000</td>
-      <td>$10.000</td>
-      <td>$12.000</td>
-      <td>$35.000</td>
-      <td><span class="estado pendiente">Pendiente</span></td>
-    </tr>
+<div class="contenedor-tabla" *ngIf="!cargando && !errorCarga && clientesFiltrados.length > 0">
+  <table class="tabla">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>RUT</th>
+        <th>Cliente</th>
+        <th>Ciudad</th>
+        <th>Descuento</th>
+        <th>Total vendido</th>
+        <th>Pagado acumulado</th>
+        <th>Saldo pendiente</th>
+        <th>Mov.</th>
+        <th>Último mov.</th>
+        <th>Estado</th>
+        <th>Detalle</th>
+      </tr>
+    </thead>
 
-    <tr>
-      <td>4</td>
-      <td>14.555.666-7</td>
-      <td>Abarrotes Kathy</td>
-      <td>$23.900</td>
-      <td>$30.000</td>
-      <td>-$6.100</td>
-      <td>-$6.100</td>
-      <td><span class="estado favor">Pago a favor</span></td>
-    </tr>
-  </tbody>
-</table>
+    <tbody>
+      <tr *ngFor="let cliente of clientesFiltrados">
+        <td>{{ cliente.idCliente }}</td>
+        <td class="rut-cliente">{{ cliente.rutCompleto }}</td>
+        <td>
+          <strong>{{ cliente.nombreCliente }}</strong>
+          <small class="dato-secundario">{{ cliente.telefono }}</small>
+        </td>
+        <td>{{ cliente.ciudad }}</td>
+        <td>{{ formatearPorcentaje(cliente.descuentoAplicado) }}</td>
+        <td>{{ formatearClp(cliente.totalVendido) }}</td>
+        <td>{{ formatearClp(cliente.pagadoAcumulado) }}</td>
+        <td>
+          <strong [class.saldo-alerta]="cliente.saldoPendiente > 0">
+            {{ formatearClp(cliente.saldoPendiente) }}
+          </strong>
+        </td>
+        <td>{{ cliente.cantidadMovimientos }}</td>
+        <td>{{ formatearFecha(cliente.ultimoMovimiento) }}</td>
+        <td>
+          <span class="estado" [ngClass]="obtenerClaseEstado(cliente)">
+            {{ cliente.estado }}
+          </span>
+        </td>
+        <td>
+          <button class="boton-tabla" type="button" (click)="seleccionarCliente(cliente)">
+            Ver detalle
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div
+  class="fondo-modal"
+  *ngIf="clienteSeleccionado as cliente"
+  (click)="cerrarDetalleCliente()"
+>
+  <section class="modal-detalle-cliente" (click)="$event.stopPropagation()">
+    <header class="modal-encabezado">
+      <div>
+        <h2>{{ cliente.nombreCliente }}</h2>
+        <p>Ficha administrativa del cliente y resumen de movimientos</p>
+      </div>
+
+      <button class="boton-cerrar" type="button" (click)="cerrarDetalleCliente()">
+        ×
+      </button>
+    </header>
+
+    <div class="bloque-detalle">
+      <h3>Datos del cliente</h3>
+
+      <div class="grilla-detalle">
+        <div>
+          <span>RUT</span>
+          <strong>{{ cliente.rutCompleto }}</strong>
+        </div>
+
+        <div>
+          <span>Teléfono</span>
+          <strong>{{ cliente.telefono }}</strong>
+        </div>
+
+        <div>
+          <span>Ciudad</span>
+          <strong>{{ cliente.ciudad }}</strong>
+        </div>
+
+        <div>
+          <span>Dirección</span>
+          <strong>{{ cliente.direccion }}</strong>
+        </div>
+
+        <div>
+          <span>Descuento comercial</span>
+          <strong>{{ formatearPorcentaje(cliente.descuentoAplicado) }}</strong>
+        </div>
+
+        <div>
+          <span>Estado</span>
+          <strong>{{ cliente.estado }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloque-detalle">
+      <h3>Resumen comercial</h3>
+
+      <div class="grilla-resumen-modal">
+        <article>
+          <span>Total vendido</span>
+          <strong>{{ formatearClp(cliente.totalVendido) }}</strong>
+        </article>
+
+        <article>
+          <span>Pagado acumulado</span>
+          <strong>{{ formatearClp(cliente.pagadoAcumulado) }}</strong>
+        </article>
+
+        <article>
+          <span>Saldo pendiente</span>
+          <strong [class.saldo-alerta]="cliente.saldoPendiente > 0">
+            {{ formatearClp(cliente.saldoPendiente) }}
+          </strong>
+        </article>
+
+        <article>
+          <span>Movimientos</span>
+          <strong>{{ cliente.cantidadMovimientos }}</strong>
+        </article>
+      </div>
+    </div>
+
+    <div class="bloque-detalle">
+      <h3>Últimos movimientos de venta</h3>
+
+      <div *ngIf="movimientosClienteSeleccionado.length === 0" class="mensaje-estado">
+        Este cliente aún no tiene movimientos registrados.
+      </div>
+
+      <div class="contenedor-tabla-modal" *ngIf="movimientosClienteSeleccionado.length > 0">
+        <table class="tabla tabla-modal">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Pedido</th>
+              <th>Movimiento</th>
+              <th>Producto</th>
+              <th>Venta</th>
+              <th>Pagado</th>
+              <th>Saldo línea</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let movimiento of movimientosClienteSeleccionado | slice: 0 : 8">
+              <td>{{ formatearFecha(movimiento.jornada_fecha) }}</td>
+              <td>{{ formatearCodigoPedido(movimiento.id_pedido) }}</td>
+              <td>{{ formatearCodigoMovimiento(movimiento.id_detalle) }}</td>
+              <td>{{ movimiento.producto_nombre }}</td>
+              <td>{{ formatearClp(movimiento.venta_linea) }}</td>
+              <td>{{ formatearClp(movimiento.cancelacion) }}</td>
+              <td>
+                <strong [class.saldo-alerta]="calcularSaldoLinea(movimiento) > 0">
+                  {{ formatearClp(calcularSaldoLinea(movimiento)) }}
+                </strong>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <small class="nota-detalle">
+        Este historial resume movimientos de venta existentes. No representa historial individual de abonos.
+      </small>
+    </div>
+  </section>
+</div>
