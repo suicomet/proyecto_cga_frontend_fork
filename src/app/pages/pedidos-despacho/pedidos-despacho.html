@@ -92,7 +92,7 @@
             <th>Cliente</th>
             <th>Distribución</th>
             <th>Detalles</th>
-            <th>Total estimado</th>
+            <th>Total del pedido</th>
           </tr>
         </thead>
 
@@ -106,29 +106,77 @@
               <td>{{ formatearDistribucion(pedido.distribucion_nombre) }}</td>
               <td>
                 <details>
-                  <summary>{{ pedido.detalles.length }} producto(s)</summary>
+                  <summary>
+                    <span>{{ pedido.detalles.length }} producto(s)</span>
+
+                    @if (pedidoTieneDescuento(pedido)) {
+                      <span class="badge-condicion">
+                        @if (esAdmin) {
+                          {{ cantidadDetallesConDescuento(pedido) }} con descuento incluido
+                        } @else {
+                          Condición comercial aplicada
+                        }
+                      </span>
+                    }
+                  </summary>
 
                   <div class="detalle-lista">
                     @for (detalle of pedido.detalles; track detalle.id_detalle_pedido) {
                       <div class="detalle-item">
                         <strong>{{ detalle.producto_nombre }}</strong>
+
                         <span>
                           {{ formatearCantidad(detalle.cantidad_solicitada) }}
                           {{ detalle.unidad_medida }}
-                          · {{ formatearDinero(detalle.precio_cobrado) }}
+                          · Precio final unitario guardado:
+                          {{ formatearDinero(detalle.precio_cobrado) }}
+                          · Total línea:
+                          {{ formatearDinero(calcularTotalDetalle(detalle)) }}
+                        </span>
 
-                          @if (esAdmin) {
-                            <span>
-                              · Desc. {{ formatearDescuento(detalle.descuento_porcentaje_aplicado) }}
+                        @if (esAdmin) {
+                          @if (detalleTieneDescuento(detalle)) {
+                            <span class="detalle-sublinea detalle-descuento">
+                              Descuento incluido en este precio unitario:
+                              {{ formatearDescuento(detalle.descuento_porcentaje_aplicado) }}.
+                              No se aplica descuento adicional al total.
+                            </span>
+                          } @else {
+                            <span class="detalle-sublinea">
+                              Sin descuento aplicado en este producto.
                             </span>
                           }
-                        </span>
+                        } @else {
+                          <span class="detalle-sublinea">
+                            Condición comercial aplicada:
+                            {{ detalleTieneDescuento(detalle) ? 'Sí' : 'No' }}
+                          </span>
+                        }
                       </div>
                     }
                   </div>
                 </details>
               </td>
-              <td>{{ formatearDinero(calcularTotalPedido(pedido)) }}</td>
+              <td class="celda-total">
+                <div class="resumen-total-pedido">
+                  <div class="linea-total linea-final">
+                    <span>Total final</span>
+                    <strong>{{ formatearDinero(calcularTotalPedido(pedido)) }}</strong>
+                  </div>
+
+                  @if (pedidoTieneDescuento(pedido)) {
+                    @if (esAdmin) {
+                      <p class="nota-total nota-total-admin">
+                        *Incluye descuentos ya aplicados en el precio final unitario.
+                      </p>
+                    } @else {
+                      <p class="nota-total">
+                        *Incluye condición comercial aplicada.
+                      </p>
+                    }
+                  }
+                </div>
+              </td>
             </tr>
           }
         </tbody>
@@ -273,7 +321,7 @@
           </div>
 
           <div class="campo-formulario">
-            <label for="precioDetalle">Precio cobrado *</label>
+            <label for="precioDetalle">Precio final unitario *</label>
             <input
               id="precioDetalle"
               type="number"
@@ -286,7 +334,7 @@
 
           @if (esAdmin) {
             <div class="campo-formulario">
-              <label for="descuentoDetalle">Descuento aplicado (%)</label>
+              <label for="descuentoDetalle">Descuento aplicado al precio unitario (%)</label>
               <input
                 id="descuentoDetalle"
                 type="number"
@@ -318,13 +366,15 @@
                 <th>Producto</th>
                 <th>Cantidad</th>
                 <th>Unidad</th>
-                <th>Precio final</th>
+                <th>Precio final unit.</th>
 
                 @if (esAdmin) {
-                  <th>Descuento</th>
+                  <th>Descuento incluido</th>
+                } @else {
+                  <th>Condición comercial</th>
                 }
 
-                <th>Total</th>
+                <th>Total línea</th>
                 <th>Acción</th>
               </tr>
             </thead>
@@ -339,6 +389,8 @@
 
                   @if (esAdmin) {
                     <td>{{ formatearDescuento(detalle.descuento_porcentaje_aplicado) }}</td>
+                  } @else {
+                    <td>{{ detalleTieneDescuento(detalle) ? 'Sí' : 'No' }}</td>
                   }
 
                   <td>{{ formatearDinero(calcularTotalDetalle(detalle)) }}</td>

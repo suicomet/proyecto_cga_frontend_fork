@@ -17,12 +17,16 @@ import {
   UnidadMedida
 } from '../../features/pedidos-despacho/services/pedidos-despacho.service';
 
-interface DetallePendiente {
+interface DetalleCalculable {
+  cantidad_solicitada: string | number;
+  precio_cobrado: string | number;
+  descuento_porcentaje_aplicado?: string | number;
+}
+
+interface DetallePendiente extends DetalleCalculable {
   id_producto: number;
   producto_nombre: string;
-  cantidad_solicitada: string | number;
   unidad_medida: UnidadMedida;
-  precio_cobrado: string | number;
   descuento_porcentaje_aplicado: string | number;
 }
 
@@ -851,13 +855,33 @@ export class PedidosDespachoComponent implements OnInit {
   }
 
   calcularTotalPedido(pedido: Pedido): number {
-    return pedido.detalles.reduce((total, detalle) => {
-      return total + Number(detalle.cantidad_solicitada) * Number(detalle.precio_cobrado);
+    return (pedido.detalles ?? []).reduce((total, detalle) => {
+      return total + this.calcularTotalDetalle(detalle);
     }, 0);
   }
 
-  calcularTotalDetalle(detalle: DetallePendiente): number {
-    return Number(detalle.cantidad_solicitada) * Number(detalle.precio_cobrado);
+  calcularTotalDetalle(detalle: DetalleCalculable): number {
+    const cantidad = Number(detalle.cantidad_solicitada);
+    const precioFinalUnitario = Number(detalle.precio_cobrado);
+
+    if (Number.isNaN(cantidad) || Number.isNaN(precioFinalUnitario)) {
+      return 0;
+    }
+
+    return cantidad * precioFinalUnitario;
+  }
+
+  detalleTieneDescuento(detalle: DetalleCalculable): boolean {
+    const descuento = Number(detalle.descuento_porcentaje_aplicado ?? 0);
+    return !Number.isNaN(descuento) && descuento > 0;
+  }
+
+  pedidoTieneDescuento(pedido: Pedido): boolean {
+    return (pedido.detalles ?? []).some((detalle) => this.detalleTieneDescuento(detalle));
+  }
+
+  cantidadDetallesConDescuento(pedido: Pedido): number {
+    return (pedido.detalles ?? []).filter((detalle) => this.detalleTieneDescuento(detalle)).length;
   }
 
   obtenerTextoCliente(cliente: Cliente): string {
