@@ -1,0 +1,361 @@
+<section class="contenedor-control-turno">
+
+  <header class="encabezado-operativo">
+    <div>
+      <p class="subtitulo">Operación diaria</p>
+      <h1>Control de Turno y Reparto</h1>
+    </div>
+
+    <div class="datos-turno">
+      <article>
+        <span>Jornada</span>
+        <strong>{{ obtenerFechaJornadaSeleccionada() }}</strong>
+      </article>
+
+      <article>
+        <span>Turno</span>
+        <strong>{{ obtenerNombreTurnoSeleccionado() }}</strong>
+      </article>
+
+      <article>
+        <span>Estado</span>
+        <strong [class.cerrado]="estaCerrado()">{{ obtenerEstadoCierre() }}</strong>
+      </article>
+    </div>
+  </header>
+
+  <div class="mensaje exito" *ngIf="mensajeExito">
+    {{ mensajeExito }}
+  </div>
+
+  <div class="mensaje error" *ngIf="mensajeError">
+    {{ mensajeError }}
+  </div>
+
+  <section class="barra-secundaria">
+    <div class="campo-consulta">
+      <label>
+        Jornada
+        <select [(ngModel)]="jornadaSeleccionada" (ngModelChange)="cambiarJornada()">
+          <option [ngValue]="null">Selecciona jornada</option>
+          <option
+            *ngFor="let jornada of jornadas; trackBy: trackByJornada"
+            [ngValue]="obtenerIdJornada(jornada)">
+            {{ obtenerEtiquetaJornada(jornada) }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Turno
+        <select [(ngModel)]="turnoSeleccionado" (ngModelChange)="cambiarTurno()">
+          <option [ngValue]="null">Selecciona turno</option>
+          <option
+            *ngFor="let turno of turnos; trackBy: trackByTurno"
+            [ngValue]="obtenerIdTurno(turno)">
+            {{ obtenerNombreTurno(turno) }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Buscar
+        <input
+          type="text"
+          placeholder="Cliente o repartidor"
+          [(ngModel)]="filtroTexto"
+          (ngModelChange)="aplicarFiltros()" />
+      </label>
+    </div>
+
+    <div class="acciones-consulta">
+      <button
+        type="button"
+        class="boton-principal"
+        (click)="buscarOCrearCierre()"
+        [disabled]="cargando || cargandoCierre">
+        Buscar / Crear cierre
+      </button>
+    </div>
+  </section>
+
+  <section class="panel-operativo">
+
+    <div class="tarjeta planilla-operativa">
+      <div class="titulo-planilla">
+        <div>
+          <h2>Planilla operativa del turno</h2>
+          <p>
+            Ingreso rápido de clientes, cantidades y repartidor. Las filas nuevas calculan el resumen al instante.
+          </p>
+        </div>
+
+        <button type="button" class="boton-secundario" (click)="agregarFilas()">
+          + Agregar filas
+        </button>
+      </div>
+
+      <datalist id="clientes-operativos">
+        <option *ngFor="let cliente of obtenerClientesDisponibles()" [value]="cliente"></option>
+      </datalist>
+
+      <datalist id="repartidores-operativos">
+        <option *ngFor="let repartidor of obtenerRepartidoresDisponibles()" [value]="repartidor"></option>
+      </datalist>
+
+      <div class="estado-carga" *ngIf="cargando">
+        Cargando planilla operativa...
+      </div>
+
+      <div class="tabla-planilla" *ngIf="!cargando">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Cantidad</th>
+              <th>Repartidor</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              class="fila-guardada"
+              *ngFor="let movimiento of movimientosFiltrados; trackBy: trackByMovimiento">
+              <td>
+                <strong>{{ movimiento.cliente_nombre }}</strong>
+              </td>
+
+              <td>
+                {{ formatearNumero(movimiento.cantidad_entregada) }}
+                {{ movimiento.unidad_medida }}
+              </td>
+
+              <td>{{ movimiento.distribucion_nombre }}</td>
+            </tr>
+
+            <tr
+              class="fila-ingreso"
+              *ngFor="let fila of filasIngresoRapido; let i = index; trackBy: trackByFilaIngreso"
+              [class.con-datos]="filaBorradorTieneDatos(fila)">
+              <td>
+                <input
+                  type="text"
+                  list="clientes-operativos"
+                  placeholder="Cliente"
+                  [(ngModel)]="fila.cliente_nombre"
+                  (ngModelChange)="calcularResumenOperativo()" />
+              </td>
+
+              <td>
+                <div class="campo-cantidad">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Cantidad"
+                    [(ngModel)]="fila.cantidad"
+                    (ngModelChange)="calcularResumenOperativo()" />
+
+                  <select
+                    [(ngModel)]="fila.unidad_medida"
+                    (ngModelChange)="calcularResumenOperativo()">
+                    <option value="KILO">KILOS</option>
+                    <option value="UNIDAD">UNIDADES</option>
+                  </select>
+                </div>
+              </td>
+
+              <td>
+                <div class="campo-repartidor">
+                  <input
+                    type="text"
+                    list="repartidores-operativos"
+                    placeholder="Repartidor"
+                    [(ngModel)]="fila.distribucion_nombre"
+                    (ngModelChange)="calcularResumenOperativo()" />
+
+                  <button
+                    type="button"
+                    class="boton-limpiar"
+                    title="Limpiar fila"
+                    (click)="limpiarFilaIngreso(i)"
+                    *ngIf="filaBorradorTieneDatos(fila)">
+                    ×
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="nota-planilla">
+        Las filas nuevas son borrador local para cálculo rápido. Guardarlas como movimientos queda pendiente hasta confirmar endpoint de escritura.
+      </p>
+
+      <p class="nota-planilla secundaria" *ngIf="!existenMovimientosConTurno()">
+        Los movimientos guardados aún no vienen asociados a turno desde backend; por ahora la planilla se filtra por jornada.
+      </p>
+    </div>
+
+    <aside class="tarjeta resumen-turno">
+      <div class="titulo-resumen">
+        <h2>Resumen del turno</h2>
+        <p>Control rápido para rinde y totales operativos.</p>
+      </div>
+
+      <div class="campo-resumen">
+        <label>
+          Quintales del turno
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="quintalesTurno"
+            (ngModelChange)="calcularResumenOperativo()" />
+        </label>
+      </div>
+
+      <div class="grupo-resumen">
+        <article>
+          <span>Kilos directos reparto</span>
+          <strong>{{ formatearNumero(resumenOperativo.kilosReparto) }}</strong>
+        </article>
+
+        <article>
+          <span>Unidades reparto</span>
+          <strong>{{ formatearNumero(resumenOperativo.unidadesReparto) }}</strong>
+        </article>
+
+        <article>
+          <span>Kilos equivalentes</span>
+          <strong>{{ formatearNumero(resumenOperativo.kilosEquivalentes) }}</strong>
+        </article>
+
+        <article>
+          <span>Filas nuevas</span>
+          <strong>{{ resumenOperativo.filasBorrador }}</strong>
+        </article>
+      </div>
+
+      <div class="campos-operativos">
+        <label>
+          Total kilos a mostrador
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="formulario.mostrador_kg"
+            (ngModelChange)="calcularResumenOperativo()"
+            [disabled]="estaCerrado()" />
+        </label>
+
+        <label>
+          Pan especial kg
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="formulario.pan_especial_kg"
+            (ngModelChange)="calcularResumenOperativo()"
+            [disabled]="estaCerrado()" />
+        </label>
+
+        <label>
+          Raciones kg
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="formulario.raciones_kg"
+            (ngModelChange)="calcularResumenOperativo()"
+            [disabled]="estaCerrado()" />
+        </label>
+
+        <label>
+          Ajuste por error kg
+          <input
+            type="number"
+            step="0.01"
+            [(ngModel)]="formulario.ajuste_por_error_kg"
+            (ngModelChange)="calcularResumenOperativo()"
+            [disabled]="estaCerrado()" />
+        </label>
+      </div>
+
+      <div class="resultado-rinde">
+        <article>
+          <span>Kilos totales preliminares</span>
+          <strong>{{ formatearNumero(resumenOperativo.kilosTotales) }}</strong>
+        </article>
+
+        <article class="rinde">
+          <span>Rinde preliminar</span>
+          <strong>{{ formatearNumero(resumenOperativo.rindePreliminar) }}</strong>
+        </article>
+      </div>
+
+      <div class="detalle-cierre" *ngIf="cierreActual">
+        <label>
+          Detalle pan especial
+          <textarea
+            rows="2"
+            [(ngModel)]="formulario.detalle_pan_especial"
+            [disabled]="estaCerrado()"></textarea>
+        </label>
+
+        <label>
+          Observación
+          <textarea
+            rows="2"
+            [(ngModel)]="formulario.observacion"
+            [disabled]="estaCerrado()"></textarea>
+        </label>
+
+        <p class="nota-validacion" *ngIf="formulario.ajuste_por_error_kg !== 0">
+          * Si existe ajuste por error, la observación es obligatoria.
+        </p>
+      </div>
+
+      <div class="sin-cierre" *ngIf="!cierreActual">
+        Para guardar datos manuales o cerrar turno, primero busca o crea el cierre.
+      </div>
+
+      <div class="acciones-cierre">
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="obtenerVistaPrevia()"
+          [disabled]="!cierreActual || cargandoCierre">
+          Vista previa
+        </button>
+
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="guardarCambiosCierre()"
+          [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
+          Guardar cierre
+        </button>
+
+        <button
+          type="button"
+          class="boton-cerrar"
+          (click)="cerrarTurno()"
+          [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
+          Cerrar turno
+        </button>
+
+        <button
+          type="button"
+          class="boton-reabrir"
+          (click)="reabrirTurno()"
+          [disabled]="!cierreActual || !estaCerrado() || cargandoCierre">
+          Reabrir
+        </button>
+      </div>
+    </aside>
+
+  </section>
+
+</section>
