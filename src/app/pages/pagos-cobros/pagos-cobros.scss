@@ -2,16 +2,22 @@
   align-items: stretch;
 }
 
-.fila-pagos .campo:first-child {
-  flex: 1;
+
+.fila-pagos input.campo {
+  flex: 2;
+  min-width: 200px;
 }
 
 .selector-estado {
-  max-width: 190px;
+  max-width: 160px;
+}
+
+.selector-orden {
+  max-width: 200px;
 }
 
 .boton-secundario {
-  background: #ffffff;
+  background: var(--color-superficie);
   color: var(--color-texto);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-borde-sm);
@@ -21,7 +27,7 @@
 }
 
 .boton-secundario:hover {
-  background: #f3f6f7;
+  background: var(--color-fondo);
 }
 
 .boton-secundario:disabled,
@@ -170,7 +176,7 @@
 }
 
 .boton-tabla {
-  background: #ffffff;
+  background: var(--color-superficie);
   color: var(--color-primario);
   border: 1px solid var(--color-primario);
   border-radius: var(--radio-borde-sm);
@@ -180,7 +186,7 @@
 }
 
 .boton-tabla:hover {
-  background: #edf8f6;
+  background: var(--color-fondo);
 }
 
 .modal-fondo {
@@ -214,6 +220,7 @@
 .modal-encabezado h2 {
   margin: 0;
   font-size: 1.2rem;
+  color: var(--color-texto);
 }
 
 .modal-encabezado p {
@@ -238,7 +245,7 @@
   gap: 1rem;
   padding: 1rem;
   border-bottom: 1px solid var(--color-borde);
-  background: #f7fafb;
+  background: var(--color-fondo);
 }
 
 .vista-previa-pago {
@@ -260,6 +267,7 @@
   display: block;
   margin-top: 0.25rem;
   font-size: 1rem;
+  color: var(--color-texto);
 }
 
 .grupo-campo {
@@ -272,6 +280,7 @@
   margin-bottom: 0.4rem;
   font-weight: 700;
   font-size: 0.9rem;
+  color: var(--color-texto);
 }
 
 .ayuda {

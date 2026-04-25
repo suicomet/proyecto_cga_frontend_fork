@@ -11,15 +11,20 @@
     </div>
 
     <div class="zona-usuario">
-      <div class="rol-usuario">
-        <span>Rol</span>
-        <strong>{{ obtenerRolVisible() }}</strong>
-      </div>
+  <button class="boton-tema" (click)="toggleModoOscuro()" [title]="modoOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+    {{ modoOscuro ? '☀️' : '🌙' }}
+  </button>
 
-      <button type="button" class="boton-salir" (click)="cerrarSesion()">
-        Cerrar sesión
-      </button>
-    </div>
+  <div class="rol-usuario">
+    <span>Rol</span>
+    <strong>{{ obtenerRolVisible() }}</strong>
+  </div>
+
+  <button type="button" class="boton-salir" (click)="cerrarSesion()">
+    Cerrar sesión
+  </button>
+  </div>
+
   </header>
 
   <div class="cuerpo-sistema">
