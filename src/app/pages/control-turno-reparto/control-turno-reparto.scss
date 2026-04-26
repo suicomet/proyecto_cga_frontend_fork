@@ -1,507 +1,163 @@
-.contenedor-control-turno {
-  padding: 18px 22px;
-  background: var(--color-fondo);
-  min-height: 100%;
-  color: var(--color-texto);
-}
-
-.encabezado-operativo {
+.aviso-flujo {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
-  align-items: center;
-  margin-bottom: 14px;
-
-  h1 {
-    margin: 0;
-    font-size: 27px;
-    font-weight: 800;
-  }
-
-  .subtitulo {
-    margin: 0 0 3px;
-    color: #d8842f;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-  }
-}
-
-.datos-turno {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-
-  article {
-    background: var(--color-superficie);
-    border: 1px solid var(--color-borde);
-    border-radius: 14px;
-    padding: 10px 14px;
-    min-width: 135px;
-    box-shadow: var(--sombra-suave);
-
-    span {
-      display: block;
-      color: var(--color-texto-suave);
-      font-size: 12px;
-      margin-bottom: 3px;
-    }
-
-    strong {
-      color: var(--color-texto);
-      font-size: 15px;
-    }
-
-    strong.cerrado {
-      color: #23824d;
-    }
-  }
-}
-
-.mensaje {
-  border-radius: 12px;
-  padding: 11px 14px;
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
-.exito {
-  background: #e8f7ef;
-  color: #247845;
-}
-
-.error {
-  background: #fdecec;
-  color: #b42318;
-}
-
-.barra-secundaria {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: flex-end;
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
-  border-radius: 18px;
-  padding: 14px;
-  margin-bottom: 14px;
-  box-shadow: var(--sombra-suave);
-}
-
-.campo-consulta {
-  display: grid;
-  grid-template-columns: 170px 170px minmax(240px, 1fr);
-  gap: 12px;
-  flex: 1;
-}
-
-.acciones-consulta {
-  display: flex;
-  align-items: flex-end;
-}
-
-.panel-operativo {
-  display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(340px, 0.8fr);
   gap: 16px;
-  align-items: start;
-}
-
-.tarjeta {
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
+  align-items: center;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
   border-radius: 18px;
-  padding: 18px;
-  box-shadow: var(--sombra-suave);
-}
-
-.titulo-planilla,
-.titulo-resumen {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
+  padding: 16px 18px;
   margin-bottom: 14px;
+  box-shadow: var(--sombra-suave);
 
   h2 {
     margin: 0 0 4px;
-    font-size: 21px;
-    font-weight: 800;
-    color: var(--color-texto);
+    font-size: 19px;
+    font-weight: 900;
+    color: #9a4f12;
   }
 
   p {
     margin: 0;
-    color: var(--color-texto-suave);
-    font-size: 14px;
-  }
-}
-
-.titulo-resumen {
-  display: block;
-}
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--color-texto);
-}
-
-input,
-select,
-textarea {
-  border: 1px solid var(--color-borde);
-  border-radius: 11px;
-  padding: 9px 11px;
-  font-size: 14px;
-  color: var(--color-texto);
-  background: var(--color-superficie);
-  outline: none;
-
-  &:focus {
-    border-color: #e5963d;
-    box-shadow: 0 0 0 3px rgba(229, 150, 61, 0.15);
-  }
-
-  &:disabled {
-    background: var(--color-fondo);
-    cursor: not-allowed;
-  }
-}
-
-textarea {
-  resize: vertical;
-}
-
-button {
-  border: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: 0.2s ease;
-  white-space: nowrap;
-
-  &:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-  }
-}
-
-.boton-principal {
-  background: #e58f36;
-  color: #fff;
-
-  &:hover:not(:disabled) {
-    background: #d77e23;
-  }
-}
-
-.boton-secundario {
-  background: var(--color-fondo);
-  color: var(--color-texto);
-
-  &:hover:not(:disabled) {
-    background: var(--color-borde);
-  }
-}
-
-.boton-cerrar {
-  background: #23824d;
-  color: #fff;
-
-  &:hover:not(:disabled) {
-    background: #1e7042;
-  }
-}
-
-.boton-reabrir {
-  background: #3d6fb6;
-  color: #fff;
-
-  &:hover:not(:disabled) {
-    background: #315b96;
-  }
-}
-
-.estado-carga {
-  background: var(--color-fondo);
-  border: 1px dashed var(--color-borde);
-  border-radius: 14px;
-  padding: 16px;
-  color: var(--color-texto-suave);
-  font-weight: 700;
-}
-
-.tabla-planilla {
-  border: 1px solid var(--color-borde);
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--color-superficie);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-
-  th,
-  td {
-    border-bottom: 1px solid var(--color-borde);
-    padding: 8px 10px;
-    text-align: left;
-    vertical-align: middle;
-  }
-
-  th {
-    background: var(--color-fondo);
-    color: var(--color-texto-suave);
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-}
-
-.fila-guardada {
-  background: var(--color-superficie);
-
-  td {
-    height: 38px;
-    color: var(--color-texto);
+    color: #7c4a16;
+    font-weight: 700;
   }
 
   strong {
-    font-size: 14px;
+    background: #fff;
+    border: 1px solid #fed7aa;
+    color: #9a4f12;
+    border-radius: 12px;
+    padding: 10px 14px;
+    white-space: nowrap;
   }
 }
 
-.fila-ingreso {
-  background: var(--color-fondo);
-
-  &.con-datos {
-    background: rgba(229, 150, 61, 0.08);
-  }
-
-  td {
-    padding: 6px 8px;
-  }
-
-  input,
-  select {
-    width: 100%;
-    border-radius: 8px;
-    padding: 8px 9px;
-  }
+.campo-consulta-simple {
+  grid-template-columns: minmax(220px, 320px);
 }
 
-.campo-cantidad {
-  display: grid;
-  grid-template-columns: minmax(90px, 1fr) 115px;
-  gap: 8px;
-}
-
-.campo-repartidor {
-  display: grid;
-  grid-template-columns: minmax(140px, 1fr) 34px;
-  gap: 8px;
-  align-items: center;
-}
-
-.boton-limpiar {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  background: #fdecec;
-  color: #b42318;
-  border-radius: 9px;
-  font-size: 20px;
-  line-height: 1;
-
-  &:hover {
-    background: #fbd4d4;
-  }
-}
-
-.nota-planilla {
-  margin: 10px 0 0;
-  color: #7a5a22;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.nota-planilla.secundaria {
-  color: var(--color-texto-suave);
-  font-weight: 600;
-}
-
-.resumen-turno {
-  position: sticky;
-  top: 16px;
-}
-
-.campo-resumen {
-  margin-bottom: 12px;
-}
-
-.grupo-resumen,
-.resultado-rinde {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(120px, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-
-  article {
-    background: var(--color-fondo);
-    border: 1px solid var(--color-borde);
-    border-radius: 14px;
-    padding: 11px;
-
-    span {
-      display: block;
-      color: var(--color-texto-suave);
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-
-    strong {
-      display: block;
-      font-size: 18px;
-      color: var(--color-texto);
-    }
-  }
-}
-
-.campos-operativos {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.resultado-rinde {
-  grid-template-columns: 1fr;
-  margin-top: 4px;
-
-  article {
-    background: rgba(229, 150, 61, 0.1);
-    border-color: #f0c58e;
-  }
-
-  .rinde strong {
-    font-size: 26px;
-    color: #d8842f;
-  }
-}
-
-.detalle-cierre {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.sin-cierre {
+.aviso-planilla {
   background: var(--color-fondo);
   border: 1px dashed var(--color-borde);
   border-radius: 14px;
-  padding: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
   color: var(--color-texto-suave);
-  font-weight: 700;
-  margin-top: 10px;
-}
-
-.nota-validacion {
-  margin: 0;
-  color: #b42318;
-  font-size: 13px;
   font-weight: 800;
-}
 
-.acciones-cierre {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 9px;
-  margin-top: 14px;
-
-  button {
-    width: 100%;
+  &.advertencia {
+    background: #fff7ed;
+    color: #9a4f12;
+    border-color: #fed7aa;
   }
 }
 
-@media (max-width: 1250px) {
-  .panel-operativo {
-    grid-template-columns: 1fr;
-  }
-
-  .resumen-turno {
-    position: static;
-  }
-
-  .barra-secundaria {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .campo-consulta {
-    grid-template-columns: repeat(3, minmax(160px, 1fr));
-  }
-
-  .acciones-consulta {
-    justify-content: flex-end;
-  }
+.panel-bloqueado {
+  opacity: 0.92;
 }
 
-@media (max-width: 780px) {
-  .contenedor-control-turno {
-    padding: 14px;
+.sin-iniciar {
+  color: #7a5a22 !important;
+}
+
+.ingresando {
+  color: #d8842f !important;
+}
+
+.finalizado {
+  color: #23824d !important;
+}
+
+.bloqueado {
+  color: #b42318 !important;
+}
+
+.acciones-cierre-simple {
+  grid-template-columns: 1fr;
+}
+
+.modal-operativo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.modal-tarjeta {
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22);
+  border: 1px solid var(--color-borde);
+
+  h2 {
+    margin: 0 0 10px;
+    font-size: 25px;
+    font-weight: 900;
   }
 
-  .encabezado-operativo {
-    flex-direction: column;
-    align-items: flex-start;
+  p {
+    margin: 0 0 10px;
+    color: var(--color-texto-suave);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
   }
 
-  .datos-turno {
-  width: 100%;
-  justify-content: stretch;
+  &.exito-modal {
+    border-color: #bbf7d0;
 
-    article {
-      flex: 1;
-      min-width: 120px;
+    h2 {
+      color: #247845;
     }
   }
 
-  .campo-consulta {
-    grid-template-columns: 1fr;
+  &.advertencia {
+    border-color: #fed7aa;
+
+    h2 {
+      color: #9a4f12;
+    }
   }
 
-  .titulo-planilla {
+  &.error-modal {
+    border-color: #fecaca;
+
+    h2 {
+      color: #b42318;
+    }
+  }
+}
+
+.modal-acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+@media (max-width: 780px) {
+  .aviso-flujo {
     flex-direction: column;
+    align-items: flex-start;
+
+    strong {
+      width: 100%;
+      text-align: center;
+    }
   }
 
-  .campo-cantidad,
-  .campo-repartidor {
-    grid-template-columns: 1fr;
-  }
+  .modal-acciones {
+    flex-direction: column;
 
-  table {
-    min-width: 720px;
-  }
-
-  .tabla-planilla {
-    overflow-x: auto;
-  }
-
-  .acciones-cierre {
-    grid-template-columns: 1fr;
+    button {
+      width: 100%;
+    }
   }
 }

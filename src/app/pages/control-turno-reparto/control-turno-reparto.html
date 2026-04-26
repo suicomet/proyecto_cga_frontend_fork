@@ -8,8 +8,8 @@
 
     <div class="datos-turno">
       <article>
-        <span>Jornada</span>
-        <strong>{{ obtenerFechaJornadaSeleccionada() }}</strong>
+        <span>Fecha del reporte</span>
+        <strong>{{ formatearFechaISO(fechaReporte) }}</strong>
       </article>
 
       <article>
@@ -19,12 +19,14 @@
 
       <article>
         <span>Estado</span>
-        <strong [class.cerrado]="estaCerrado()">{{ obtenerEstadoCierre() }}</strong>
+        <strong [ngClass]="obtenerClaseEstadoVisual()">
+          {{ obtenerTextoEstadoVisual() }}
+        </strong>
       </article>
     </div>
   </header>
 
-  <div class="mensaje exito" *ngIf="mensajeExito">
+  <div class="mensaje exito" *ngIf="mensajeExito && !mostrarModalExito">
     {{ mensajeExito }}
   </div>
 
@@ -32,23 +34,27 @@
     {{ mensajeError }}
   </div>
 
-  <section class="barra-secundaria">
-    <div class="campo-consulta">
-      <label>
-        Jornada
-        <select [(ngModel)]="jornadaSeleccionada" (ngModelChange)="cambiarJornada()">
-          <option [ngValue]="null">Selecciona jornada</option>
-          <option
-            *ngFor="let jornada of jornadas; trackBy: trackByJornada"
-            [ngValue]="obtenerIdJornada(jornada)">
-            {{ obtenerEtiquetaJornada(jornada) }}
-          </option>
-        </select>
-      </label>
+  <section class="aviso-flujo">
+    <div>
+      <h2>Planilla del turno actual</h2>
+      <p>
+        Esta pantalla registra el rinde operativo del día actual. Si cierras la página antes de guardar, los datos no se conservarán.
+      </p>
+    </div>
 
+    <strong>
+      Fecha automática: {{ formatearFechaISO(fechaReporte) }}
+    </strong>
+  </section>
+
+  <section class="barra-secundaria">
+    <div class="campo-consulta campo-consulta-simple">
       <label>
-        Turno
-        <select [(ngModel)]="turnoSeleccionado" (ngModelChange)="cambiarTurno()">
+        Turno a registrar
+        <select
+          [(ngModel)]="turnoSeleccionado"
+          (ngModelChange)="cambiarTurno()"
+          [disabled]="cargando || cargandoCierre || estadoVisual === 'INGRESANDO'">
           <option [ngValue]="null">Selecciona turno</option>
           <option
             *ngFor="let turno of turnos; trackBy: trackByTurno"
@@ -57,37 +63,30 @@
           </option>
         </select>
       </label>
-
-      <label>
-        Buscar
-        <input
-          type="text"
-          placeholder="Cliente o repartidor"
-          [(ngModel)]="filtroTexto"
-          (ngModelChange)="aplicarFiltros()" />
-      </label>
     </div>
 
     <div class="acciones-consulta">
       <button
         type="button"
-        class="boton-secundario"
-        (click)="buscarCierre()"
-        [disabled]="cargando || cargandoCierre">
-        Buscar reporte
+        class="boton-principal"
+        (click)="iniciarPlanillaTurno()"
+        [disabled]="!turnoSeleccionado || cargando || cargandoCierre || estadoVisual === 'INGRESANDO'">
+        Iniciar planilla del turno
       </button>
 
       <button
         type="button"
-        class="boton-principal"
-        (click)="crearCierreDesdeBoton()"
-        [disabled]="cargando || cargandoCierre">
-        Crear nuevo reporte
+        class="boton-secundario"
+        (click)="descartarPlanillaLocal()"
+        [disabled]="estadoVisual !== 'INGRESANDO' || cargandoCierre">
+        Descartar planilla
       </button>
     </div>
   </section>
 
-  <section class="panel-operativo">
+  <section
+    class="panel-operativo"
+    [class.panel-bloqueado]="planillaBloqueada()">
 
     <div class="tarjeta planilla-operativa">
       <div class="titulo-planilla">
@@ -98,27 +97,25 @@
           </p>
         </div>
 
-        <div class="acciones-consulta">
-          <button
-            type="button"
-            class="boton-secundario"
-            (click)="agregarFilas()"
-            [disabled]="estaCerrado()">
-            + Agregar filas
-          </button>
-
-          <button
-            type="button"
-            class="boton-principal"
-            (click)="guardarRepartosBorrador()"
-            [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
-            Guardar repartos
-          </button>
-        </div>
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="agregarFilas()"
+          [disabled]="!planillaHabilitada()">
+          + Agregar filas
+        </button>
       </div>
 
       <div class="estado-carga" *ngIf="cargando">
         Cargando planilla operativa...
+      </div>
+
+      <div class="aviso-planilla" *ngIf="estadoVisual === 'SIN_INICIAR'">
+        Selecciona un turno y presiona <strong>Iniciar planilla del turno</strong> para comenzar.
+      </div>
+
+      <div class="aviso-planilla advertencia" *ngIf="estadoVisual === 'BLOQUEADO'">
+        Este turno no está disponible para ingreso desde esta pantalla.
       </div>
 
       <div class="tabla-planilla" *ngIf="!cargando">
@@ -128,41 +125,10 @@
               <th>Cliente</th>
               <th>Cantidad</th>
               <th>Repartidor</th>
-              <th>Acción</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr
-              class="fila-guardada"
-              *ngFor="let reparto of repartosTurnoFiltrados; trackBy: trackByReparto">
-              <td>
-                <strong>
-                  {{ reparto.cliente_nombre || obtenerNombreClientePorId(reparto.id_cliente) }}
-                </strong>
-              </td>
-
-              <td>
-                {{ formatearNumero(reparto.cantidad_entregada) }}
-                {{ reparto.unidad_medida }}
-              </td>
-
-              <td>
-                {{ reparto.distribucion_nombre || obtenerNombreDistribucionPorId(reparto.id_distribucion) }}
-              </td>
-
-              <td>
-                <button
-                  type="button"
-                  class="boton-limpiar"
-                  title="Eliminar reparto"
-                  (click)="eliminarReparto(reparto)"
-                  [disabled]="estaCerrado() || cargandoCierre">
-                  ×
-                </button>
-              </td>
-            </tr>
-
             <tr
               class="fila-ingreso"
               *ngFor="let fila of filasIngresoRapido; let i = index; trackBy: trackByFilaIngreso"
@@ -171,7 +137,7 @@
                 <select
                   [(ngModel)]="fila.id_cliente"
                   (ngModelChange)="calcularResumenOperativo()"
-                  [disabled]="estaCerrado()">
+                  [disabled]="!planillaHabilitada()">
                   <option [ngValue]="null">Cliente</option>
                   <option
                     *ngFor="let cliente of clientes; trackBy: trackByCliente"
@@ -190,12 +156,12 @@
                     placeholder="Cantidad"
                     [(ngModel)]="fila.cantidad"
                     (ngModelChange)="calcularResumenOperativo()"
-                    [disabled]="estaCerrado()" />
+                    [disabled]="!planillaHabilitada()" />
 
                   <select
                     [(ngModel)]="fila.unidad_medida"
                     (ngModelChange)="calcularResumenOperativo()"
-                    [disabled]="estaCerrado()">
+                    [disabled]="!planillaHabilitada()">
                     <option value="KILO">KILOS</option>
                     <option value="UNIDAD">UNIDADES</option>
                   </select>
@@ -203,29 +169,29 @@
               </td>
 
               <td>
-                <select
-                  [(ngModel)]="fila.id_distribucion"
-                  (ngModelChange)="calcularResumenOperativo()"
-                  [disabled]="estaCerrado()">
-                  <option [ngValue]="null">Repartidor</option>
-                  <option
-                    *ngFor="let distribucion of distribuciones; trackBy: trackByDistribucion"
-                    [ngValue]="obtenerIdDistribucion(distribucion)">
-                    {{ distribucion.nombre_distribucion }}
-                  </option>
-                </select>
-              </td>
+                <div class="campo-repartidor">
+                  <select
+                    [(ngModel)]="fila.id_distribucion"
+                    (ngModelChange)="calcularResumenOperativo()"
+                    [disabled]="!planillaHabilitada()">
+                    <option [ngValue]="null">Repartidor</option>
+                    <option
+                      *ngFor="let distribucion of distribuciones; trackBy: trackByDistribucion"
+                      [ngValue]="obtenerIdDistribucion(distribucion)">
+                      {{ distribucion.nombre_distribucion }}
+                    </option>
+                  </select>
 
-              <td>
-                <button
-                  type="button"
-                  class="boton-limpiar"
-                  title="Limpiar fila"
-                  (click)="limpiarFilaIngreso(i)"
-                  *ngIf="filaBorradorTieneDatos(fila)"
-                  [disabled]="estaCerrado()">
-                  ×
-                </button>
+                  <button
+                    type="button"
+                    class="boton-limpiar"
+                    title="Limpiar fila"
+                    (click)="limpiarFilaIngreso(i)"
+                    *ngIf="filaBorradorTieneDatos(fila)"
+                    [disabled]="!planillaHabilitada()">
+                    ×
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -233,7 +199,7 @@
       </div>
 
       <p class="nota-planilla">
-        Estos repartos son operativos para rinde. No afectan ventas, cobros ni saldos de clientes.
+        Esta planilla no afecta ventas, cobros ni saldos. Solo registra datos operativos para el rinde del turno.
       </p>
     </div>
 
@@ -251,7 +217,8 @@
             min="0"
             step="0.01"
             [(ngModel)]="quintalesTurno"
-            (ngModelChange)="calcularResumenOperativo()" />
+            (ngModelChange)="calcularResumenOperativo()"
+            [disabled]="!planillaHabilitada()" />
         </label>
       </div>
 
@@ -272,7 +239,7 @@
         </article>
 
         <article>
-          <span>Filas nuevas</span>
+          <span>Filas con datos</span>
           <strong>{{ resumenOperativo.filasBorrador }}</strong>
         </article>
       </div>
@@ -286,7 +253,7 @@
             step="0.01"
             [(ngModel)]="formulario.mostrador_kg"
             (ngModelChange)="calcularResumenOperativo()"
-            [disabled]="estaCerrado()" />
+            [disabled]="!planillaHabilitada()" />
         </label>
 
         <label>
@@ -297,7 +264,7 @@
             step="0.01"
             [(ngModel)]="formulario.pan_especial_kg"
             (ngModelChange)="calcularResumenOperativo()"
-            [disabled]="estaCerrado()" />
+            [disabled]="!planillaHabilitada()" />
         </label>
 
         <label>
@@ -308,7 +275,7 @@
             step="0.01"
             [(ngModel)]="formulario.raciones_kg"
             (ngModelChange)="calcularResumenOperativo()"
-            [disabled]="estaCerrado()" />
+            [disabled]="!planillaHabilitada()" />
         </label>
 
         <label>
@@ -318,7 +285,7 @@
             step="0.01"
             [(ngModel)]="formulario.ajuste_por_error_kg"
             (ngModelChange)="calcularResumenOperativo()"
-            [disabled]="estaCerrado()" />
+            [disabled]="!planillaHabilitada()" />
         </label>
       </div>
 
@@ -334,13 +301,13 @@
         </article>
       </div>
 
-      <div class="detalle-cierre" *ngIf="cierreActual">
+      <div class="detalle-cierre">
         <label>
           Detalle pan especial
           <textarea
             rows="2"
             [(ngModel)]="formulario.detalle_pan_especial"
-            [disabled]="estaCerrado()"></textarea>
+            [disabled]="!planillaHabilitada()"></textarea>
         </label>
 
         <label>
@@ -348,7 +315,7 @@
           <textarea
             rows="2"
             [(ngModel)]="formulario.observacion"
-            [disabled]="estaCerrado()"></textarea>
+            [disabled]="!planillaHabilitada()"></textarea>
         </label>
 
         <p class="nota-validacion" *ngIf="formulario.ajuste_por_error_kg !== 0">
@@ -356,49 +323,94 @@
         </p>
       </div>
 
-      <div class="sin-cierre" *ngIf="!cierreActual">
-        Para registrar repartos o finalizar turno, primero busca o crea el reporte.
-      </div>
-
-      <div class="mensaje exito" *ngIf="mensajeAccionCierre">
+      <div class="mensaje exito" *ngIf="mensajeAccionCierre && !mostrarModalExito">
         {{ mensajeAccionCierre }}
       </div>
 
-      <div class="acciones-cierre">
-        <button
-          type="button"
-          class="boton-secundario"
-          (click)="guardarCambiosCierre()"
-          [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
-          Guardar datos sin finalizar
-        </button>
-
+      <div class="acciones-cierre acciones-cierre-simple">
         <button
           type="button"
           class="boton-cerrar"
           (click)="guardarYFinalizarTurno()"
-          [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
+          [disabled]="!planillaHabilitada()">
           Guardar y finalizar turno
         </button>
+      </div>
+    </aside>
 
+  </section>
+
+  <section class="modal-operativo" *ngIf="mostrarModalPendiente">
+    <div class="modal-tarjeta advertencia">
+      <h2>Existe un reporte no finalizado</h2>
+      <p>
+        Ya existe un reporte pendiente para la fecha actual y el turno seleccionado.
+        Para mantener simple el flujo, no se continuará ese borrador.
+      </p>
+      <p>
+        Puedes descartarlo e iniciar una planilla limpia, o cancelar y elegir otro turno.
+      </p>
+
+      <div class="modal-acciones">
         <button
           type="button"
-          class="boton-reabrir"
-          (click)="reabrirTurno()"
-          [disabled]="!cierreActual || !estaCerrado() || cargandoCierre">
-          Reabrir
+          class="boton-cerrar"
+          (click)="descartarPendienteEIniciar()"
+          [disabled]="cargandoCierre">
+          Descartar e iniciar limpio
         </button>
 
         <button
           type="button"
           class="boton-secundario"
-          (click)="ingresarNuevoTurno()"
+          (click)="cancelarInicioPorPendiente()"
           [disabled]="cargandoCierre">
-          Ingresar nuevo turno
+          Cancelar
         </button>
       </div>
-    </aside>
+    </div>
+  </section>
 
+  <section class="modal-operativo" *ngIf="mostrarBloqueoFinalizado">
+    <div class="modal-tarjeta error-modal">
+      <h2>Turno ya finalizado</h2>
+      <p>
+        El turno seleccionado ya fue guardado y finalizado. No se puede ingresar nuevamente desde esta pantalla.
+      </p>
+      <p>
+        Para revisar la información, usa la futura página de consulta de reportes.
+      </p>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="ingresarOtroTurno()">
+          Elegir otro turno
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="modal-operativo" *ngIf="mostrarModalExito">
+    <div class="modal-tarjeta exito-modal">
+      <h2>Datos guardados con éxito</h2>
+      <p>
+        El reporte del turno fue registrado y finalizado correctamente.
+      </p>
+      <p>
+        Ya puedes ingresar otro turno si corresponde.
+      </p>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="ingresarOtroTurno()">
+          Ingresar otro turno
+        </button>
+      </div>
+    </div>
   </section>
 
 </section>
