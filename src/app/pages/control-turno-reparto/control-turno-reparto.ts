@@ -352,8 +352,8 @@ export class ControlTurnoReparto implements OnInit {
     }
 
     const payload: CierreTurnoPayload = {
-      jornada: this.jornadaSeleccionada,
-      turno: this.turnoSeleccionado,
+      id_jornada: this.jornadaSeleccionada,
+      id_turno: this.turnoSeleccionado,
       mostrador_kg: this.convertirNumero(this.formulario.mostrador_kg),
       raciones_kg: this.convertirNumero(this.formulario.raciones_kg),
       ajuste_por_error_kg: this.convertirNumero(this.formulario.ajuste_por_error_kg),
@@ -582,7 +582,7 @@ export class ControlTurnoReparto implements OnInit {
   }
 
   obtenerIdCierre(cierre: CierreTurno): number {
-    return Number(cierre.id || cierre.id_cierre || 0);
+    return Number(cierre.id_cierre_turno || cierre.id || cierre.id_cierre || 0);
   }
 
   obtenerIdJornada(jornada: Jornada): number {

@@ -22,6 +22,7 @@ export interface Turno {
 export interface CierreTurno {
   id?: number;
   id_cierre?: number;
+  id_cierre_turno?: number;
 
   jornada?: number | Jornada;
   turno?: number | Turno;
@@ -47,8 +48,8 @@ export interface CierreTurno {
 }
 
 export interface CierreTurnoPayload {
-  jornada: number;
-  turno: number;
+  id_jornada: number;
+  id_turno: number;
   mostrador_kg: number;
   raciones_kg: number;
   ajuste_por_error_kg: number;
