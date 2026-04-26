@@ -71,10 +71,18 @@
     <div class="acciones-consulta">
       <button
         type="button"
-        class="boton-principal"
-        (click)="buscarOCrearCierre()"
+        class="boton-secundario"
+        (click)="buscarCierre()"
         [disabled]="cargando || cargandoCierre">
-        Buscar / Crear cierre
+        Buscar cierre
+      </button>
+
+      <button
+        type="button"
+        class="boton-principal"
+        (click)="crearCierreDesdeBoton()"
+        [disabled]="cargando || cargandoCierre">
+        Crear cierre
       </button>
     </div>
   </section>
@@ -192,8 +200,6 @@
       <p class="nota-planilla">
         Las filas nuevas son borrador local para cálculo rápido. Guardarlas como movimientos queda pendiente hasta confirmar endpoint de escritura.
       </p>
-
-
     </div>
 
     <aside class="tarjeta resumen-turno">
@@ -319,6 +325,10 @@
         Para guardar datos manuales o cerrar turno, primero busca o crea el cierre.
       </div>
 
+      <div class="mensaje exito" *ngIf="mensajeAccionCierre">
+        {{ mensajeAccionCierre }}
+      </div>
+
       <div class="acciones-cierre">
         <button
           type="button"
@@ -350,6 +360,14 @@
           (click)="reabrirTurno()"
           [disabled]="!cierreActual || !estaCerrado() || cargandoCierre">
           Reabrir
+        </button>
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="ingresarNuevoTurno()"
+          [disabled]="cargandoCierre">
+          Ingresar nuevo turno
         </button>
       </div>
     </aside>

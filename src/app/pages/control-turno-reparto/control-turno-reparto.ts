@@ -51,6 +51,7 @@ export class ControlTurnoReparto implements OnInit {
   cargandoCierre = false;
   mensajeExito = '';
   mensajeError = '';
+  mensajeAccionCierre = '';
 
   quintalesTurno = 0;
 
@@ -107,9 +108,11 @@ export class ControlTurnoReparto implements OnInit {
 
         this.cargando = false;
       },
-      error: () => {
+      error: (error) => {
         this.cargando = false;
-        this.mostrarError('No se pudieron cargar los datos iniciales del módulo.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudieron cargar los datos iniciales del módulo.')
+        );
       }
     });
   }
@@ -172,12 +175,14 @@ export class ControlTurnoReparto implements OnInit {
 
   cambiarJornada(): void {
     this.cierreActual = null;
+    this.mensajeAccionCierre = '';
     this.aplicarFiltros();
     this.buscarCierreExistente();
   }
 
   cambiarTurno(): void {
     this.cierreActual = null;
+    this.mensajeAccionCierre = '';
     this.aplicarFiltros();
     this.buscarCierreExistente();
   }
@@ -307,10 +312,58 @@ export class ControlTurnoReparto implements OnInit {
   }
 
   buscarOCrearCierre(): void {
+    this.buscarCierre();
+  }
+
+  buscarCierre(): void {
     this.limpiarMensajes();
 
     if (!this.jornadaSeleccionada || !this.turnoSeleccionado) {
-      this.mostrarError('Debes seleccionar una jornada y un turno para buscar o crear el cierre.');
+      this.mostrarError('Debes seleccionar una jornada y un turno para buscar el cierre.');
+      return;
+    }
+
+    this.cargandoCierre = true;
+
+    this.cierreTurnoService.obtenerCierres().subscribe({
+      next: (respuesta) => {
+        this.cierres = this.extraerLista(respuesta);
+
+        const cierreEncontrado = this.cierres.find((cierre) => {
+          const idJornada = this.obtenerIdJornadaDesdeCierre(cierre);
+          const idTurno = this.obtenerIdTurnoDesdeCierre(cierre);
+
+          return idJornada === this.jornadaSeleccionada && idTurno === this.turnoSeleccionado;
+        });
+
+        if (!cierreEncontrado) {
+          this.cierreActual = null;
+          this.cargandoCierre = false;
+          this.mostrarError('No se encontró un cierre para la jornada y turno seleccionados.');
+          return;
+        }
+
+        this.cierreActual = cierreEncontrado;
+        this.cargarFormularioDesdeCierre(cierreEncontrado);
+        this.obtenerVistaPrevia(false);
+        this.mostrarExito('Cierre cargado correctamente.');
+        this.mostrarMensajeAccionCierre('Cierre cargado correctamente.');
+        this.cargandoCierre = false;
+      },
+      error: (error) => {
+        this.cargandoCierre = false;
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudieron consultar los cierres existentes.')
+        );
+      }
+    });
+  }
+
+  crearCierreDesdeBoton(): void {
+    this.limpiarMensajes();
+
+    if (!this.jornadaSeleccionada || !this.turnoSeleccionado) {
+      this.mostrarError('Debes seleccionar una jornada y un turno para crear el cierre.');
       return;
     }
 
@@ -331,16 +384,19 @@ export class ControlTurnoReparto implements OnInit {
           this.cierreActual = cierreEncontrado;
           this.cargarFormularioDesdeCierre(cierreEncontrado);
           this.obtenerVistaPrevia(false);
-          this.mostrarExito('Cierre cargado correctamente.');
+          this.mostrarExito('Ya existía un cierre para esta jornada y turno. Se cargó el cierre existente.');
+          this.mostrarMensajeAccionCierre('Cierre existente cargado correctamente.');
           this.cargandoCierre = false;
           return;
         }
 
         this.crearCierre();
       },
-      error: () => {
+      error: (error) => {
         this.cargandoCierre = false;
-        this.mostrarError('No se pudieron consultar los cierres existentes.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudieron consultar los cierres existentes.')
+        );
       }
     });
   }
@@ -367,12 +423,15 @@ export class ControlTurnoReparto implements OnInit {
         this.cierreActual = cierre;
         this.cargarFormularioDesdeCierre(cierre);
         this.mostrarExito('Cierre creado correctamente.');
+        this.mostrarMensajeAccionCierre('Cierre creado correctamente.');
         this.cargandoCierre = false;
         this.cargarCierres();
       },
-      error: () => {
+      error: (error) => {
         this.cargandoCierre = false;
-        this.mostrarError('No se pudo crear el cierre de turno.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudo crear el cierre de turno.')
+        );
       }
     });
   }
@@ -418,12 +477,15 @@ export class ControlTurnoReparto implements OnInit {
         this.cierreActual = cierre;
         this.cargarFormularioDesdeCierre(cierre);
         this.obtenerVistaPrevia(false);
-        this.mostrarExito('Datos manuales del cierre guardados correctamente.');
+        this.mostrarExito('Datos guardados correctamente.');
+        this.mostrarMensajeAccionCierre('Datos guardados correctamente.');
         this.cargandoCierre = false;
       },
-      error: () => {
+      error: (error) => {
         this.cargandoCierre = false;
-        this.mostrarError('No se pudieron guardar los datos manuales del cierre.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudieron guardar los datos manuales del cierre.')
+        );
       }
     });
   }
@@ -450,10 +512,13 @@ export class ControlTurnoReparto implements OnInit {
 
         if (mostrarMensaje) {
           this.mostrarExito('Vista previa actualizada correctamente.');
+          this.mostrarMensajeAccionCierre('Vista previa actualizada correctamente.');
         }
       },
-      error: () => {
-        this.mostrarError('No se pudo obtener la vista previa del cierre.');
+      error: (error) => {
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudo obtener la vista previa del cierre.')
+        );
       }
     });
   }
@@ -480,11 +545,14 @@ export class ControlTurnoReparto implements OnInit {
         this.cierreActual = cierre;
         this.cargarFormularioDesdeCierre(cierre);
         this.mostrarExito('Turno cerrado correctamente.');
+        this.mostrarMensajeAccionCierre('Turno cerrado correctamente. Puedes ingresar un nuevo turno.');
         this.cargandoCierre = false;
       },
-      error: () => {
+      error: (error) => {
         this.cargandoCierre = false;
-        this.mostrarError('No se pudo cerrar el turno.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudo cerrar el turno.')
+        );
       }
     });
   }
@@ -511,13 +579,39 @@ export class ControlTurnoReparto implements OnInit {
         this.cierreActual = cierre;
         this.cargarFormularioDesdeCierre(cierre);
         this.mostrarExito('Turno reabierto correctamente.');
+        this.mostrarMensajeAccionCierre('Turno reabierto correctamente.');
         this.cargandoCierre = false;
       },
-      error: () => {
+      error: (error) => {
         this.cargandoCierre = false;
-        this.mostrarError('No se pudo reabrir el turno. Verifica permisos de Administrador.');
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudo reabrir el turno. Verifica permisos de Administrador.')
+        );
       }
     });
+  }
+
+  ingresarNuevoTurno(): void {
+    this.cierreActual = null;
+    this.turnoSeleccionado = null;
+    this.filtroTexto = '';
+    this.quintalesTurno = 0;
+
+    this.formulario = {
+      mostrador_kg: 0,
+      raciones_kg: 0,
+      ajuste_por_error_kg: 0,
+      pan_especial_kg: 0,
+      detalle_pan_especial: '',
+      observacion: ''
+    };
+
+    this.prepararFilasIngresoRapido();
+    this.movimientosFiltrados = [];
+    this.calcularResumenOperativo();
+
+    this.mostrarExito('Pantalla lista para ingresar un nuevo turno.');
+    this.mostrarMensajeAccionCierre('Selecciona un turno para continuar.');
   }
 
   cargarFormularioDesdeCierre(cierre: CierreTurno): void {
@@ -578,7 +672,15 @@ export class ControlTurnoReparto implements OnInit {
       return 'Sin cierre cargado';
     }
 
-    return this.cierreActual.estado || 'EN_PROCESO';
+    if (this.cierreActual.estado === 'EN_PROCESO') {
+      return 'En proceso';
+    }
+
+    if (this.cierreActual.estado === 'CERRADO') {
+      return 'Cerrado';
+    }
+
+    return this.cierreActual.estado || 'En proceso';
   }
 
   obtenerIdCierre(cierre: CierreTurno): number {
@@ -675,6 +777,7 @@ export class ControlTurnoReparto implements OnInit {
   limpiarMensajes(): void {
     this.mensajeExito = '';
     this.mensajeError = '';
+    this.mensajeAccionCierre = '';
   }
 
   mostrarExito(mensaje: string): void {
@@ -685,6 +788,37 @@ export class ControlTurnoReparto implements OnInit {
   mostrarError(mensaje: string): void {
     this.mensajeError = mensaje;
     this.mensajeExito = '';
+    this.mensajeAccionCierre = '';
+  }
+
+  mostrarMensajeAccionCierre(mensaje: string): void {
+    this.mensajeAccionCierre = mensaje;
+  }
+
+  obtenerMensajeError(error: any, mensajeDefecto: string): string {
+    const respuesta = error?.error;
+
+    if (typeof respuesta === 'string' && respuesta.trim()) {
+      return respuesta;
+    }
+
+    if (respuesta?.detail) {
+      return respuesta.detail;
+    }
+
+    if (respuesta?.error) {
+      return respuesta.error;
+    }
+
+    if (respuesta && typeof respuesta === 'object') {
+      const mensajes = Object.values(respuesta).flat();
+
+      if (mensajes.length > 0) {
+        return String(mensajes[0]);
+      }
+    }
+
+    return mensajeDefecto;
   }
 
   trackByJornada(_: number, jornada: Jornada): number {
