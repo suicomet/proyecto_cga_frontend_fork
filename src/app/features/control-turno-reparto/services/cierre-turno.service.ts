@@ -8,6 +8,7 @@ import {
   Cliente,
   Distribucion,
   Jornada,
+  JornadaPayload,
   MovimientoTurno,
   RepartoTurno,
   RepartoTurnoPayload,
@@ -26,6 +27,10 @@ export class CierreTurnoService {
 
   obtenerJornadas(): Observable<RespuestaListaApi<Jornada>> {
     return this.http.get<RespuestaListaApi<Jornada>>(`${this.apiUrl}/produccion/jornadas/`);
+  }
+
+  crearJornada(payload: JornadaPayload): Observable<Jornada> {
+    return this.http.post<Jornada>(`${this.apiUrl}/produccion/jornadas/`, payload);
   }
 
   obtenerTurnos(): Observable<RespuestaListaApi<Turno>> {
@@ -50,6 +55,10 @@ export class CierreTurnoService {
 
   actualizarCierre(id: number, payload: Partial<CierreTurnoPayload>): Observable<CierreTurno> {
     return this.http.patch<CierreTurno>(`${this.apiUrl}/produccion/cierres-turno/${id}/`, payload);
+  }
+
+  eliminarCierre(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/produccion/cierres-turno/${id}/`);
   }
 
   obtenerVistaPrevia(id: number): Observable<CierreTurno> {

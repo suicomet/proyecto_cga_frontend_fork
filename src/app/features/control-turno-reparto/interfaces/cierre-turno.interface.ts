@@ -12,6 +12,10 @@ export interface Jornada {
   nombre?: string;
 }
 
+export interface JornadaPayload {
+  fecha: string;
+}
+
 export interface Turno {
   id?: number;
   id_turno?: number;
