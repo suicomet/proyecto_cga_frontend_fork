@@ -178,6 +178,7 @@ export class ControlTurnoReparto implements OnInit {
 
   cambiarTurno(): void {
     this.cierreActual = null;
+    this.aplicarFiltros();
     this.buscarCierreExistente();
   }
 
@@ -189,6 +190,10 @@ export class ControlTurnoReparto implements OnInit {
         ? movimiento.id_jornada === this.jornadaSeleccionada
         : true;
 
+      const cumpleTurno = this.turnoSeleccionado
+        ? movimiento.id_turno === this.turnoSeleccionado
+        : true;
+
       const cadenaBusqueda = [
         movimiento.cliente_nombre,
         movimiento.distribucion_nombre
@@ -198,7 +203,7 @@ export class ControlTurnoReparto implements OnInit {
         ? cadenaBusqueda.includes(texto)
         : true;
 
-      return cumpleJornada && cumpleTexto;
+      return cumpleJornada && cumpleTurno && cumpleTexto;
     });
 
     this.calcularResumenOperativo();
