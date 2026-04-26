@@ -1,24 +1,28 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 
 import { CierreTurnoService } from '../../features/control-turno-reparto/services/cierre-turno.service';
 
 import {
   CierreTurno,
   CierreTurnoPayload,
+  Cliente,
+  Distribucion,
   Jornada,
-  MovimientoTurno,
+  RepartoTurno,
+  RepartoTurnoPayload,
   RespuestaListaApi,
   Turno
 } from '../../features/control-turno-reparto/interfaces/cierre-turno.interface';
 
 interface FilaIngresoRapido {
-  cliente_nombre: string;
+  id_cliente: number | null;
   cantidad: number | null;
   unidad_medida: 'KILO' | 'UNIDAD';
-  distribucion_nombre: string;
+  id_distribucion: number | null;
+  observacion: string;
 }
 
 @Component({
@@ -34,9 +38,11 @@ export class ControlTurnoReparto implements OnInit {
   jornadas: Jornada[] = [];
   turnos: Turno[] = [];
   cierres: CierreTurno[] = [];
+  clientes: Cliente[] = [];
+  distribuciones: Distribucion[] = [];
 
-  movimientos: MovimientoTurno[] = [];
-  movimientosFiltrados: MovimientoTurno[] = [];
+  repartosTurno: RepartoTurno[] = [];
+  repartosTurnoFiltrados: RepartoTurno[] = [];
 
   filasIngresoRapido: FilaIngresoRapido[] = [];
 
@@ -92,14 +98,17 @@ export class ControlTurnoReparto implements OnInit {
     forkJoin({
       jornadas: this.cierreTurnoService.obtenerJornadas(),
       turnos: this.cierreTurnoService.obtenerTurnos(),
-      movimientos: this.cierreTurnoService.obtenerMovimientos()
+      clientes: this.cierreTurnoService.obtenerClientes(),
+      distribuciones: this.cierreTurnoService.obtenerDistribuciones(),
+      repartosTurno: this.cierreTurnoService.obtenerRepartosTurno()
     }).subscribe({
-      next: ({ jornadas, turnos, movimientos }) => {
+      next: ({ jornadas, turnos, clientes, distribuciones, repartosTurno }) => {
         this.jornadas = this.extraerLista(jornadas);
         this.turnos = this.extraerLista(turnos)
           .filter((turno) => !this.esTurnoDePrueba(turno));
-
-        this.movimientos = this.extraerLista(movimientos);
+        this.clientes = this.extraerLista(clientes);
+        this.distribuciones = this.extraerLista(distribuciones);
+        this.repartosTurno = this.extraerLista(repartosTurno);
 
         this.seleccionarJornadaInicial();
         this.seleccionarTurnoInicial();
@@ -129,16 +138,23 @@ export class ControlTurnoReparto implements OnInit {
     });
   }
 
+  async recargarRepartosTurno(): Promise<void> {
+    const respuesta = await firstValueFrom(this.cierreTurnoService.obtenerRepartosTurno());
+    this.repartosTurno = this.extraerLista(respuesta);
+    this.aplicarFiltros();
+  }
+
   prepararFilasIngresoRapido(): void {
     this.filasIngresoRapido = Array.from({ length: 12 }, () => this.crearFilaVacia());
   }
 
   crearFilaVacia(): FilaIngresoRapido {
     return {
-      cliente_nombre: '',
+      id_cliente: null,
       cantidad: null,
       unidad_medida: 'KILO',
-      distribucion_nombre: ''
+      id_distribucion: null,
+      observacion: ''
     };
   }
 
@@ -174,34 +190,50 @@ export class ControlTurnoReparto implements OnInit {
   }
 
   cambiarJornada(): void {
-    this.cierreActual = null;
-    this.mensajeAccionCierre = '';
+    this.limpiarDatosDelTurnoSeleccionado();
     this.aplicarFiltros();
     this.buscarCierreExistente();
   }
 
   cambiarTurno(): void {
-    this.cierreActual = null;
-    this.mensajeAccionCierre = '';
+    this.limpiarDatosDelTurnoSeleccionado();
     this.aplicarFiltros();
     this.buscarCierreExistente();
+  }
+
+  limpiarDatosDelTurnoSeleccionado(): void {
+    this.cierreActual = null;
+    this.mensajeAccionCierre = '';
+    this.quintalesTurno = 0;
+
+    this.formulario = {
+      mostrador_kg: 0,
+      raciones_kg: 0,
+      ajuste_por_error_kg: 0,
+      pan_especial_kg: 0,
+      detalle_pan_especial: '',
+      observacion: ''
+    };
+
+    this.prepararFilasIngresoRapido();
+    this.calcularResumenOperativo();
   }
 
   aplicarFiltros(): void {
     const texto = this.filtroTexto.trim().toLowerCase();
 
-    this.movimientosFiltrados = this.movimientos.filter((movimiento) => {
+    this.repartosTurnoFiltrados = this.repartosTurno.filter((reparto) => {
       const cumpleJornada = this.jornadaSeleccionada
-        ? movimiento.id_jornada === this.jornadaSeleccionada
+        ? reparto.id_jornada === this.jornadaSeleccionada
         : true;
 
       const cumpleTurno = this.turnoSeleccionado
-        ? movimiento.id_turno === this.turnoSeleccionado
+        ? reparto.id_turno === this.turnoSeleccionado
         : true;
 
       const cadenaBusqueda = [
-        movimiento.cliente_nombre,
-        movimiento.distribucion_nombre
+        reparto.cliente_nombre || this.obtenerNombreClientePorId(reparto.id_cliente),
+        reparto.distribucion_nombre || this.obtenerNombreDistribucionPorId(reparto.id_distribucion)
       ].join(' ').toLowerCase();
 
       const cumpleTexto = texto
@@ -218,9 +250,9 @@ export class ControlTurnoReparto implements OnInit {
     let kilosReparto = 0;
     let unidadesReparto = 0;
 
-    this.movimientosFiltrados.forEach((movimiento) => {
-      const cantidad = this.convertirNumero(movimiento.cantidad_entregada);
-      const unidad = String(movimiento.unidad_medida || '').toUpperCase();
+    this.repartosTurnoFiltrados.forEach((reparto) => {
+      const cantidad = this.convertirNumero(reparto.cantidad_entregada);
+      const unidad = String(reparto.unidad_medida || '').toUpperCase();
 
       if (unidad === 'KILO') {
         kilosReparto += cantidad;
@@ -265,7 +297,7 @@ export class ControlTurnoReparto implements OnInit {
     const rindePreliminar = quintales > 0 ? kilosTotales / quintales : 0;
 
     this.resumenOperativo = {
-      filasGuardadas: this.movimientosFiltrados.length,
+      filasGuardadas: this.repartosTurnoFiltrados.length,
       filasBorrador: filasBorrador.length,
       kilosReparto,
       unidadesReparto,
@@ -281,16 +313,22 @@ export class ControlTurnoReparto implements OnInit {
 
   obtenerFilasBorradorValidas(): FilaIngresoRapido[] {
     return this.filasIngresoRapido.filter((fila) => {
-      return !!fila.cliente_nombre.trim()
-        || !!fila.distribucion_nombre.trim()
-        || this.convertirNumero(fila.cantidad) > 0;
+      return this.filaBorradorTieneDatos(fila);
     });
   }
 
   filaBorradorTieneDatos(fila: FilaIngresoRapido): boolean {
-    return !!fila.cliente_nombre.trim()
-      || !!fila.distribucion_nombre.trim()
-      || this.convertirNumero(fila.cantidad) > 0;
+    return !!fila.id_cliente
+      || !!fila.id_distribucion
+      || this.convertirNumero(fila.cantidad) > 0
+      || !!fila.observacion.trim();
+  }
+
+  filaBorradorCompleta(fila: FilaIngresoRapido): boolean {
+    return !!fila.id_cliente
+      && !!fila.id_distribucion
+      && this.convertirNumero(fila.cantidad) > 0
+      && ['KILO', 'UNIDAD'].includes(fila.unidad_medida);
   }
 
   buscarCierreExistente(): void {
@@ -319,7 +357,7 @@ export class ControlTurnoReparto implements OnInit {
     this.limpiarMensajes();
 
     if (!this.jornadaSeleccionada || !this.turnoSeleccionado) {
-      this.mostrarError('Debes seleccionar una jornada y un turno para buscar el cierre.');
+      this.mostrarError('Debes seleccionar una jornada y un turno para buscar el reporte.');
       return;
     }
 
@@ -339,21 +377,21 @@ export class ControlTurnoReparto implements OnInit {
         if (!cierreEncontrado) {
           this.cierreActual = null;
           this.cargandoCierre = false;
-          this.mostrarError('No se encontró un cierre para la jornada y turno seleccionados.');
+          this.mostrarError('No se encontró un reporte para la jornada y turno seleccionados.');
           return;
         }
 
         this.cierreActual = cierreEncontrado;
         this.cargarFormularioDesdeCierre(cierreEncontrado);
         this.obtenerVistaPrevia(false);
-        this.mostrarExito('Cierre cargado correctamente.');
-        this.mostrarMensajeAccionCierre('Cierre cargado correctamente.');
+        this.mostrarExito('Reporte cargado correctamente.');
+        this.mostrarMensajeAccionCierre('Reporte cargado correctamente.');
         this.cargandoCierre = false;
       },
       error: (error) => {
         this.cargandoCierre = false;
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudieron consultar los cierres existentes.')
+          this.obtenerMensajeError(error, 'No se pudieron consultar los reportes existentes.')
         );
       }
     });
@@ -363,7 +401,7 @@ export class ControlTurnoReparto implements OnInit {
     this.limpiarMensajes();
 
     if (!this.jornadaSeleccionada || !this.turnoSeleccionado) {
-      this.mostrarError('Debes seleccionar una jornada y un turno para crear el cierre.');
+      this.mostrarError('Debes seleccionar una jornada y un turno para crear el reporte.');
       return;
     }
 
@@ -384,8 +422,8 @@ export class ControlTurnoReparto implements OnInit {
           this.cierreActual = cierreEncontrado;
           this.cargarFormularioDesdeCierre(cierreEncontrado);
           this.obtenerVistaPrevia(false);
-          this.mostrarExito('Ya existía un cierre para esta jornada y turno. Se cargó el cierre existente.');
-          this.mostrarMensajeAccionCierre('Cierre existente cargado correctamente.');
+          this.mostrarExito('Ya existía un reporte para esta jornada y turno. Se cargó el existente.');
+          this.mostrarMensajeAccionCierre('Reporte existente cargado correctamente.');
           this.cargandoCierre = false;
           return;
         }
@@ -395,7 +433,7 @@ export class ControlTurnoReparto implements OnInit {
       error: (error) => {
         this.cargandoCierre = false;
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudieron consultar los cierres existentes.')
+          this.obtenerMensajeError(error, 'No se pudieron consultar los reportes existentes.')
         );
       }
     });
@@ -422,15 +460,118 @@ export class ControlTurnoReparto implements OnInit {
       next: (cierre) => {
         this.cierreActual = cierre;
         this.cargarFormularioDesdeCierre(cierre);
-        this.mostrarExito('Cierre creado correctamente.');
-        this.mostrarMensajeAccionCierre('Cierre creado correctamente.');
+        this.mostrarExito('Reporte creado correctamente.');
+        this.mostrarMensajeAccionCierre('Reporte creado correctamente.');
         this.cargandoCierre = false;
         this.cargarCierres();
       },
       error: (error) => {
         this.cargandoCierre = false;
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudo crear el cierre de turno.')
+          this.obtenerMensajeError(error, 'No se pudo crear el reporte de turno.')
+        );
+      }
+    });
+  }
+
+  async guardarRepartosBorrador(mostrarMensaje = true): Promise<boolean> {
+    if (!this.jornadaSeleccionada || !this.turnoSeleccionado) {
+      this.mostrarError('Debes seleccionar una jornada y un turno antes de guardar repartos.');
+      return false;
+    }
+
+    if (!this.cierreActual) {
+      this.mostrarError('Primero debes buscar o crear un reporte de turno.');
+      return false;
+    }
+
+    if (this.estaCerrado()) {
+      this.mostrarError('No puedes guardar repartos en un turno cerrado.');
+      return false;
+    }
+
+    const filasConDatos = this.obtenerFilasBorradorValidas();
+
+    if (filasConDatos.length === 0) {
+      if (mostrarMensaje) {
+        this.mostrarError('No hay filas nuevas para guardar.');
+      }
+      return true;
+    }
+
+    const filaIncompleta = filasConDatos.find((fila) => !this.filaBorradorCompleta(fila));
+
+    if (filaIncompleta) {
+      this.mostrarError('Cada fila de reparto debe tener cliente, cantidad mayor a cero, unidad y repartidor.');
+      return false;
+    }
+
+    const payloads: RepartoTurnoPayload[] = filasConDatos.map((fila) => ({
+      id_jornada: Number(this.jornadaSeleccionada),
+      id_turno: Number(this.turnoSeleccionado),
+      id_cliente: Number(fila.id_cliente),
+      id_distribucion: Number(fila.id_distribucion),
+      cantidad_entregada: this.convertirNumero(fila.cantidad).toFixed(2),
+      unidad_medida: fila.unidad_medida,
+      observacion: fila.observacion.trim() || null
+    }));
+
+    try {
+      this.cargandoCierre = true;
+
+      await firstValueFrom(
+        forkJoin(payloads.map((payload) => this.cierreTurnoService.crearRepartoTurno(payload)))
+      );
+
+      this.prepararFilasIngresoRapido();
+      await this.recargarRepartosTurno();
+      this.obtenerVistaPrevia(false);
+
+      if (mostrarMensaje) {
+        this.mostrarExito('Repartos guardados correctamente.');
+        this.mostrarMensajeAccionCierre('Repartos guardados correctamente.');
+      }
+
+      this.cargandoCierre = false;
+      return true;
+    } catch (error) {
+      this.cargandoCierre = false;
+      this.mostrarError(
+        this.obtenerMensajeError(error, 'No se pudieron guardar los repartos del turno.')
+      );
+      return false;
+    }
+  }
+
+  eliminarReparto(reparto: RepartoTurno): void {
+    this.limpiarMensajes();
+
+    if (this.estaCerrado()) {
+      this.mostrarError('No puedes eliminar repartos de un turno cerrado.');
+      return;
+    }
+
+    const idReparto = this.obtenerIdReparto(reparto);
+
+    if (!idReparto) {
+      this.mostrarError('No se pudo identificar el reparto seleccionado.');
+      return;
+    }
+
+    this.cargandoCierre = true;
+
+    this.cierreTurnoService.eliminarRepartoTurno(idReparto).subscribe({
+      next: async () => {
+        await this.recargarRepartosTurno();
+        this.obtenerVistaPrevia(false);
+        this.mostrarExito('Reparto eliminado correctamente.');
+        this.mostrarMensajeAccionCierre('Reparto eliminado correctamente.');
+        this.cargandoCierre = false;
+      },
+      error: (error) => {
+        this.cargandoCierre = false;
+        this.mostrarError(
+          this.obtenerMensajeError(error, 'No se pudo eliminar el reparto.')
         );
       }
     });
@@ -440,12 +581,12 @@ export class ControlTurnoReparto implements OnInit {
     this.limpiarMensajes();
 
     if (!this.cierreActual) {
-      this.mostrarError('Primero debes buscar o crear un cierre.');
+      this.mostrarError('Primero debes buscar o crear un reporte.');
       return;
     }
 
     if (this.estaCerrado()) {
-      this.mostrarError('No puedes editar un cierre cerrado.');
+      this.mostrarError('No puedes editar un reporte cerrado.');
       return;
     }
 
@@ -457,7 +598,7 @@ export class ControlTurnoReparto implements OnInit {
     const idCierre = this.obtenerIdCierre(this.cierreActual);
 
     if (!idCierre) {
-      this.mostrarError('No se pudo identificar el cierre actual.');
+      this.mostrarError('No se pudo identificar el reporte actual.');
       return;
     }
 
@@ -484,16 +625,87 @@ export class ControlTurnoReparto implements OnInit {
       error: (error) => {
         this.cargandoCierre = false;
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudieron guardar los datos manuales del cierre.')
+          this.obtenerMensajeError(error, 'No se pudieron guardar los datos manuales del reporte.')
         );
       }
     });
   }
 
+  async guardarYFinalizarTurno(): Promise<void> {
+    this.limpiarMensajes();
+
+    if (!this.cierreActual) {
+      this.mostrarError('Primero debes buscar o crear un reporte.');
+      return;
+    }
+
+    if (this.estaCerrado()) {
+      this.mostrarError('Este turno ya está cerrado.');
+      return;
+    }
+
+    if (Number(this.formulario.ajuste_por_error_kg) !== 0 && !this.formulario.observacion.trim()) {
+      this.mostrarError('Si existe ajuste por error, la observación es obligatoria.');
+      return;
+    }
+
+    const idCierre = this.obtenerIdCierre(this.cierreActual);
+
+    if (!idCierre) {
+      this.mostrarError('No se pudo identificar el reporte actual.');
+      return;
+    }
+
+    try {
+      this.cargandoCierre = true;
+
+      const repartosGuardados = await this.guardarRepartosBorrador(false);
+
+      if (!repartosGuardados) {
+        this.cargandoCierre = false;
+        return;
+      }
+
+      const payload: Partial<CierreTurnoPayload> = {
+        mostrador_kg: this.convertirNumero(this.formulario.mostrador_kg),
+        raciones_kg: this.convertirNumero(this.formulario.raciones_kg),
+        ajuste_por_error_kg: this.convertirNumero(this.formulario.ajuste_por_error_kg),
+        pan_especial_kg: this.convertirNumero(this.formulario.pan_especial_kg),
+        detalle_pan_especial: this.formulario.detalle_pan_especial,
+        observacion: this.formulario.observacion
+      };
+
+      const cierreActualizado = await firstValueFrom(
+        this.cierreTurnoService.actualizarCierre(idCierre, payload)
+      );
+
+      this.cierreActual = cierreActualizado;
+      this.cargarFormularioDesdeCierre(cierreActualizado);
+
+      const cierreCerrado = await firstValueFrom(
+        this.cierreTurnoService.cerrarTurno(idCierre)
+      );
+
+      this.cierreActual = cierreCerrado;
+      this.cargarFormularioDesdeCierre(cierreCerrado);
+      await this.recargarRepartosTurno();
+
+      this.mostrarExito('Turno guardado y finalizado correctamente.');
+      this.mostrarMensajeAccionCierre('Turno guardado y finalizado correctamente. Puedes ingresar un nuevo turno.');
+
+      this.cargandoCierre = false;
+    } catch (error) {
+      this.cargandoCierre = false;
+      this.mostrarError(
+        this.obtenerMensajeError(error, 'No se pudo guardar y finalizar el turno.')
+      );
+    }
+  }
+
   obtenerVistaPrevia(mostrarMensaje = true): void {
     if (!this.cierreActual) {
       if (mostrarMensaje) {
-        this.mostrarError('Primero debes buscar o crear un cierre.');
+        this.mostrarError('Primero debes buscar o crear un reporte.');
       }
       return;
     }
@@ -501,7 +713,7 @@ export class ControlTurnoReparto implements OnInit {
     const idCierre = this.obtenerIdCierre(this.cierreActual);
 
     if (!idCierre) {
-      this.mostrarError('No se pudo identificar el cierre actual.');
+      this.mostrarError('No se pudo identificar el reporte actual.');
       return;
     }
 
@@ -511,64 +723,34 @@ export class ControlTurnoReparto implements OnInit {
         this.cargarFormularioDesdeCierre(cierre);
 
         if (mostrarMensaje) {
-          this.mostrarExito('Vista previa actualizada correctamente.');
-          this.mostrarMensajeAccionCierre('Vista previa actualizada correctamente.');
+          this.mostrarExito('Cálculo actualizado correctamente.');
+          this.mostrarMensajeAccionCierre('Cálculo actualizado correctamente.');
         }
       },
       error: (error) => {
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudo obtener la vista previa del cierre.')
+          this.obtenerMensajeError(error, 'No se pudo obtener el cálculo del reporte.')
         );
       }
     });
   }
 
   cerrarTurno(): void {
-    this.limpiarMensajes();
-
-    if (!this.cierreActual) {
-      this.mostrarError('Primero debes buscar o crear un cierre.');
-      return;
-    }
-
-    const idCierre = this.obtenerIdCierre(this.cierreActual);
-
-    if (!idCierre) {
-      this.mostrarError('No se pudo identificar el cierre actual.');
-      return;
-    }
-
-    this.cargandoCierre = true;
-
-    this.cierreTurnoService.cerrarTurno(idCierre).subscribe({
-      next: (cierre) => {
-        this.cierreActual = cierre;
-        this.cargarFormularioDesdeCierre(cierre);
-        this.mostrarExito('Turno cerrado correctamente.');
-        this.mostrarMensajeAccionCierre('Turno cerrado correctamente. Puedes ingresar un nuevo turno.');
-        this.cargandoCierre = false;
-      },
-      error: (error) => {
-        this.cargandoCierre = false;
-        this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudo cerrar el turno.')
-        );
-      }
-    });
+    this.guardarYFinalizarTurno();
   }
 
   reabrirTurno(): void {
     this.limpiarMensajes();
 
     if (!this.cierreActual) {
-      this.mostrarError('Primero debes buscar o crear un cierre.');
+      this.mostrarError('Primero debes buscar o crear un reporte.');
       return;
     }
 
     const idCierre = this.obtenerIdCierre(this.cierreActual);
 
     if (!idCierre) {
-      this.mostrarError('No se pudo identificar el cierre actual.');
+      this.mostrarError('No se pudo identificar el reporte actual.');
       return;
     }
 
@@ -607,7 +789,7 @@ export class ControlTurnoReparto implements OnInit {
     };
 
     this.prepararFilasIngresoRapido();
-    this.movimientosFiltrados = [];
+    this.repartosTurnoFiltrados = [];
     this.calcularResumenOperativo();
 
     this.mostrarExito('Pantalla lista para ingresar un nuevo turno.');
@@ -633,26 +815,6 @@ export class ControlTurnoReparto implements OnInit {
     this.calcularResumenOperativo();
   }
 
-  obtenerClientesDisponibles(): string[] {
-    const clientes = this.movimientos
-      .map((movimiento) => movimiento.cliente_nombre)
-      .filter((nombre) => !!nombre);
-
-    return Array.from(new Set(clientes)).sort();
-  }
-
-  obtenerRepartidoresDisponibles(): string[] {
-    const repartidores = this.movimientos
-      .map((movimiento) => movimiento.distribucion_nombre)
-      .filter((nombre) => !!nombre);
-
-    return Array.from(new Set(repartidores)).sort();
-  }
-
-  existenMovimientosConTurno(): boolean {
-    return this.movimientos.some((movimiento) => movimiento.id_turno !== null);
-  }
-
   obtenerFechaJornadaSeleccionada(): string {
     const jornada = this.jornadas.find((item) => this.obtenerIdJornada(item) === this.jornadaSeleccionada);
     return jornada?.fecha || 'Sin jornada';
@@ -669,7 +831,7 @@ export class ControlTurnoReparto implements OnInit {
 
   obtenerEstadoCierre(): string {
     if (!this.cierreActual) {
-      return 'Sin cierre cargado';
+      return 'Sin reporte cargado';
     }
 
     if (this.cierreActual.estado === 'EN_PROCESO') {
@@ -687,12 +849,37 @@ export class ControlTurnoReparto implements OnInit {
     return Number(cierre.id_cierre_turno || cierre.id || cierre.id_cierre || 0);
   }
 
+  obtenerIdReparto(reparto: RepartoTurno): number {
+    return Number(reparto.id_detalle_reparto_turno || reparto.id || 0);
+  }
+
   obtenerIdJornada(jornada: Jornada): number {
     return Number(jornada.id_jornada || jornada.id || 0);
   }
 
   obtenerIdTurno(turno: Turno): number {
     return Number(turno.id_turno || turno.id || 0);
+  }
+
+  obtenerIdCliente(cliente: Cliente): number {
+    return Number(cliente.id_cliente || cliente.id || 0);
+  }
+
+  obtenerIdDistribucion(distribucion: Distribucion): number {
+    return Number(distribucion.id_distribucion || distribucion.id || 0);
+  }
+
+  obtenerNombreClientePorId(idCliente: number): string {
+    const cliente = this.clientes.find((item) => this.obtenerIdCliente(item) === Number(idCliente));
+    return cliente?.nombre_cliente || 'Cliente sin nombre';
+  }
+
+  obtenerNombreDistribucionPorId(idDistribucion: number): string {
+    const distribucion = this.distribuciones.find((item) => {
+      return this.obtenerIdDistribucion(item) === Number(idDistribucion);
+    });
+
+    return distribucion?.nombre_distribucion || 'Sin repartidor';
   }
 
   obtenerIdJornadaDesdeCierre(cierre: CierreTurno): number {
@@ -829,8 +1016,16 @@ export class ControlTurnoReparto implements OnInit {
     return Number(turno.id_turno || turno.id || 0);
   }
 
-  trackByMovimiento(_: number, movimiento: MovimientoTurno): number {
-    return movimiento.id_detalle;
+  trackByCliente(_: number, cliente: Cliente): number {
+    return this.obtenerIdCliente(cliente);
+  }
+
+  trackByDistribucion(_: number, distribucion: Distribucion): number {
+    return this.obtenerIdDistribucion(distribucion);
+  }
+
+  trackByReparto(_: number, reparto: RepartoTurno): number {
+    return this.obtenerIdReparto(reparto);
   }
 
   trackByFilaIngreso(indice: number): number {

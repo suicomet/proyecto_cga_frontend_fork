@@ -19,6 +19,24 @@ export interface Turno {
   nombre_turno?: string;
 }
 
+export interface Cliente {
+  id?: number;
+  id_cliente?: number;
+  rut?: number;
+  digito_verificador?: string;
+  nombre_cliente: string;
+  ciudad?: string;
+  direccion?: string;
+  telefono?: string;
+  descuento_aplicado?: number | string | null;
+}
+
+export interface Distribucion {
+  id?: number;
+  id_distribucion?: number;
+  nombre_distribucion: string;
+}
+
 export interface CierreTurno {
   id?: number;
   id_cierre?: number;
@@ -56,6 +74,37 @@ export interface CierreTurnoPayload {
   pan_especial_kg: number;
   detalle_pan_especial?: string;
   observacion?: string;
+}
+
+export interface RepartoTurno {
+  id?: number;
+  id_detalle_reparto_turno?: number;
+
+  id_jornada: number;
+  id_turno: number;
+  id_cliente: number;
+  id_distribucion: number;
+
+  cliente_nombre?: string;
+  distribucion_nombre?: string;
+  jornada_fecha?: string;
+  turno_nombre?: string;
+
+  cantidad_entregada: number | string;
+  unidad_medida: 'KILO' | 'UNIDAD' | string;
+
+  fecha_registro?: string;
+  observacion?: string | null;
+}
+
+export interface RepartoTurnoPayload {
+  id_jornada: number;
+  id_turno: number;
+  id_cliente: number;
+  id_distribucion: number;
+  cantidad_entregada: number | string;
+  unidad_medida: 'KILO' | 'UNIDAD';
+  observacion?: string | null;
 }
 
 export interface MovimientoTurno {

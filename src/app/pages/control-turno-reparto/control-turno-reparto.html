@@ -74,7 +74,7 @@
         class="boton-secundario"
         (click)="buscarCierre()"
         [disabled]="cargando || cargandoCierre">
-        Buscar cierre
+        Buscar reporte
       </button>
 
       <button
@@ -82,7 +82,7 @@
         class="boton-principal"
         (click)="crearCierreDesdeBoton()"
         [disabled]="cargando || cargandoCierre">
-        Crear cierre
+        Crear nuevo reporte
       </button>
     </div>
   </section>
@@ -94,22 +94,28 @@
         <div>
           <h2>Planilla operativa del turno</h2>
           <p>
-            Ingreso rápido de clientes, cantidades y repartidor. Las filas nuevas calculan el resumen al instante.
+            Registra kilos o unidades de pan corriente por cliente y repartidor. Estos datos alimentan el rinde operativo.
           </p>
         </div>
 
-        <button type="button" class="boton-secundario" (click)="agregarFilas()">
-          + Agregar filas
-        </button>
+        <div class="acciones-consulta">
+          <button
+            type="button"
+            class="boton-secundario"
+            (click)="agregarFilas()"
+            [disabled]="estaCerrado()">
+            + Agregar filas
+          </button>
+
+          <button
+            type="button"
+            class="boton-principal"
+            (click)="guardarRepartosBorrador()"
+            [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
+            Guardar repartos
+          </button>
+        </div>
       </div>
-
-      <datalist id="clientes-operativos">
-        <option *ngFor="let cliente of obtenerClientesDisponibles()" [value]="cliente"></option>
-      </datalist>
-
-      <datalist id="repartidores-operativos">
-        <option *ngFor="let repartidor of obtenerRepartidoresDisponibles()" [value]="repartidor"></option>
-      </datalist>
 
       <div class="estado-carga" *ngIf="cargando">
         Cargando planilla operativa...
@@ -122,23 +128,39 @@
               <th>Cliente</th>
               <th>Cantidad</th>
               <th>Repartidor</th>
+              <th>Acción</th>
             </tr>
           </thead>
 
           <tbody>
             <tr
               class="fila-guardada"
-              *ngFor="let movimiento of movimientosFiltrados; trackBy: trackByMovimiento">
+              *ngFor="let reparto of repartosTurnoFiltrados; trackBy: trackByReparto">
               <td>
-                <strong>{{ movimiento.cliente_nombre }}</strong>
+                <strong>
+                  {{ reparto.cliente_nombre || obtenerNombreClientePorId(reparto.id_cliente) }}
+                </strong>
               </td>
 
               <td>
-                {{ formatearNumero(movimiento.cantidad_entregada) }}
-                {{ movimiento.unidad_medida }}
+                {{ formatearNumero(reparto.cantidad_entregada) }}
+                {{ reparto.unidad_medida }}
               </td>
 
-              <td>{{ movimiento.distribucion_nombre }}</td>
+              <td>
+                {{ reparto.distribucion_nombre || obtenerNombreDistribucionPorId(reparto.id_distribucion) }}
+              </td>
+
+              <td>
+                <button
+                  type="button"
+                  class="boton-limpiar"
+                  title="Eliminar reparto"
+                  (click)="eliminarReparto(reparto)"
+                  [disabled]="estaCerrado() || cargandoCierre">
+                  ×
+                </button>
+              </td>
             </tr>
 
             <tr
@@ -146,12 +168,17 @@
               *ngFor="let fila of filasIngresoRapido; let i = index; trackBy: trackByFilaIngreso"
               [class.con-datos]="filaBorradorTieneDatos(fila)">
               <td>
-                <input
-                  type="text"
-                  list="clientes-operativos"
-                  placeholder="Cliente"
-                  [(ngModel)]="fila.cliente_nombre"
-                  (ngModelChange)="calcularResumenOperativo()" />
+                <select
+                  [(ngModel)]="fila.id_cliente"
+                  (ngModelChange)="calcularResumenOperativo()"
+                  [disabled]="estaCerrado()">
+                  <option [ngValue]="null">Cliente</option>
+                  <option
+                    *ngFor="let cliente of clientes; trackBy: trackByCliente"
+                    [ngValue]="obtenerIdCliente(cliente)">
+                    {{ cliente.nombre_cliente }}
+                  </option>
+                </select>
               </td>
 
               <td>
@@ -162,11 +189,13 @@
                     step="0.01"
                     placeholder="Cantidad"
                     [(ngModel)]="fila.cantidad"
-                    (ngModelChange)="calcularResumenOperativo()" />
+                    (ngModelChange)="calcularResumenOperativo()"
+                    [disabled]="estaCerrado()" />
 
                   <select
                     [(ngModel)]="fila.unidad_medida"
-                    (ngModelChange)="calcularResumenOperativo()">
+                    (ngModelChange)="calcularResumenOperativo()"
+                    [disabled]="estaCerrado()">
                     <option value="KILO">KILOS</option>
                     <option value="UNIDAD">UNIDADES</option>
                   </select>
@@ -174,23 +203,29 @@
               </td>
 
               <td>
-                <div class="campo-repartidor">
-                  <input
-                    type="text"
-                    list="repartidores-operativos"
-                    placeholder="Repartidor"
-                    [(ngModel)]="fila.distribucion_nombre"
-                    (ngModelChange)="calcularResumenOperativo()" />
+                <select
+                  [(ngModel)]="fila.id_distribucion"
+                  (ngModelChange)="calcularResumenOperativo()"
+                  [disabled]="estaCerrado()">
+                  <option [ngValue]="null">Repartidor</option>
+                  <option
+                    *ngFor="let distribucion of distribuciones; trackBy: trackByDistribucion"
+                    [ngValue]="obtenerIdDistribucion(distribucion)">
+                    {{ distribucion.nombre_distribucion }}
+                  </option>
+                </select>
+              </td>
 
-                  <button
-                    type="button"
-                    class="boton-limpiar"
-                    title="Limpiar fila"
-                    (click)="limpiarFilaIngreso(i)"
-                    *ngIf="filaBorradorTieneDatos(fila)">
-                    ×
-                  </button>
-                </div>
+              <td>
+                <button
+                  type="button"
+                  class="boton-limpiar"
+                  title="Limpiar fila"
+                  (click)="limpiarFilaIngreso(i)"
+                  *ngIf="filaBorradorTieneDatos(fila)"
+                  [disabled]="estaCerrado()">
+                  ×
+                </button>
               </td>
             </tr>
           </tbody>
@@ -198,7 +233,7 @@
       </div>
 
       <p class="nota-planilla">
-        Las filas nuevas son borrador local para cálculo rápido. Guardarlas como movimientos queda pendiente hasta confirmar endpoint de escritura.
+        Estos repartos son operativos para rinde. No afectan ventas, cobros ni saldos de clientes.
       </p>
     </div>
 
@@ -322,7 +357,7 @@
       </div>
 
       <div class="sin-cierre" *ngIf="!cierreActual">
-        Para guardar datos manuales o cerrar turno, primero busca o crea el cierre.
+        Para registrar repartos o finalizar turno, primero busca o crea el reporte.
       </div>
 
       <div class="mensaje exito" *ngIf="mensajeAccionCierre">
@@ -333,25 +368,17 @@
         <button
           type="button"
           class="boton-secundario"
-          (click)="obtenerVistaPrevia()"
-          [disabled]="!cierreActual || cargandoCierre">
-          Vista previa
-        </button>
-
-        <button
-          type="button"
-          class="boton-principal"
           (click)="guardarCambiosCierre()"
           [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
-          Guardar cierre
+          Guardar datos sin finalizar
         </button>
 
         <button
           type="button"
           class="boton-cerrar"
-          (click)="cerrarTurno()"
+          (click)="guardarYFinalizarTurno()"
           [disabled]="!cierreActual || estaCerrado() || cargandoCierre">
-          Cerrar turno
+          Guardar y finalizar turno
         </button>
 
         <button
