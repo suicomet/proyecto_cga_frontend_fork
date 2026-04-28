@@ -1,4 +1,4 @@
-<div class="layout-privado">
+﻿<div class="layout-privado">
 
   <header class="barra-superior">
     <div class="marca-sistema">
@@ -11,20 +11,22 @@
     </div>
 
     <div class="zona-usuario">
-  <button class="boton-tema" (click)="toggleModoOscuro()" [title]="modoOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-    {{ modoOscuro ? '☀️' : '🌙' }}
-  </button>
+      <button
+        class="boton-tema"
+        (click)="toggleModoOscuro()"
+        [title]="modoOscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
+        {{ modoOscuro ? '☀️' : '🌙' }}
+      </button>
 
-  <div class="rol-usuario">
-    <span>Rol</span>
-    <strong>{{ obtenerRolVisible() }}</strong>
-  </div>
+      <div class="rol-usuario">
+        <span>Rol</span>
+        <strong>{{ obtenerRolVisible() }}</strong>
+      </div>
 
-  <button type="button" class="boton-salir" (click)="cerrarSesion()">
-    Cerrar sesión
-  </button>
-  </div>
-
+      <button type="button" class="boton-salir" (click)="cerrarSesion()">
+        Cerrar sesión
+      </button>
+    </div>
   </header>
 
   <div class="cuerpo-sistema">
@@ -45,6 +47,10 @@
 
         <a routerLink="/control-turno-reparto" routerLinkActive="activo">
           Control de Turno y Reparto
+        </a>
+
+        <a routerLink="/informes-turno" routerLinkActive="activo">
+          Informes de Turno
         </a>
 
         <a routerLink="/bodega" routerLinkActive="activo">

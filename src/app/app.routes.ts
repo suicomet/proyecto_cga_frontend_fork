@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 
 import { adminGuard, authGuard, authChildGuard } from './core/guards/auth.guard';
 
@@ -12,6 +12,7 @@ import { ClientesSaldos } from './pages/clientes-saldos/clientes-saldos';
 import { Reportes } from './pages/reportes/reportes';
 import { GestionUsuarios } from './pages/gestion-usuarios/gestion-usuarios';
 import { ControlTurnoReparto } from './pages/control-turno-reparto/control-turno-reparto';
+import { InformesTurno } from './pages/informes-turno/informes-turno';
 
 import { PrivateLayout } from './layouts/private-layout/private-layout';
 
@@ -43,6 +44,10 @@ export const routes: Routes = [
       {
         path: 'control-turno-reparto',
         component: ControlTurnoReparto
+      },
+      {
+        path: 'informes-turno',
+        component: InformesTurno
       },
       {
         path: 'bodega',
