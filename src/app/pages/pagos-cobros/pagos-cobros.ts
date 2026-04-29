@@ -300,7 +300,7 @@ export class PagosCobros implements OnInit {
     return `${dia}-${mes}-${anio}`;
   }
 
-  formatearDinero(valor: string | number): string {
+  formatearDinero(valor: string | number | null | undefined): string {
     const numero = this.convertirNumero(valor);
 
     if (Number.isNaN(numero)) {
@@ -314,7 +314,7 @@ export class PagosCobros implements OnInit {
     });
   }
 
-  formatearCantidad(valor: string | number): string {
+  formatearCantidad(valor: string | number | null | undefined): string {
     const numero = this.convertirNumero(valor);
 
     if (Number.isNaN(numero)) {
@@ -418,12 +418,18 @@ export class PagosCobros implements OnInit {
     );
   }
 
-  private convertirNumero(valor: string | number): number {
-    if (typeof valor === 'number') {
-      return valor;
+  private convertirNumero(valor: string | number | null | undefined): number {
+    if (valor === null || valor === undefined || valor === '') {
+      return 0;
     }
 
-    return Number(String(valor).replace(',', '.'));
+    if (typeof valor === 'number') {
+      return Number.isNaN(valor) ? 0 : valor;
+    }
+
+    const numero = Number(String(valor).replace(',', '.'));
+
+    return Number.isNaN(numero) ? 0 : numero;
   }
 
   private normalizarTexto(valor: string): string {
