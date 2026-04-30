@@ -95,3 +95,36 @@
     border-bottom: none;
   }
 }
+
+/* ─── Responsive Dashboard ──────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .pagina-dashboard {
+  padding: 0 0.75rem;
+}
+
+.grilla-tarjetas {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.tarjeta-kpi {
+  padding: 0.9rem 1rem;
+  gap: 0.4rem;
+}
+
+.kpi-info h2 {
+  font-size: 1.1rem;
+}
+
+.kpi-icono {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+}

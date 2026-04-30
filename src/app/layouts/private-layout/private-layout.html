@@ -1,7 +1,18 @@
-﻿<div class="layout-privado">
+﻿<div class="layout-privado" [class.sidebar-abierto]="sidebarAbierto">
 
   <header class="barra-superior">
     <div class="marca-sistema">
+
+      <button
+        type="button"
+        class="boton-hamburguesa"
+        (click)="toggleSidebar()"
+        aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
       <div class="icono-marca"></div>
 
       <div>
@@ -29,63 +40,50 @@
     </div>
   </header>
 
+  <div class="sidebar-overlay" (click)="cerrarSidebar()"></div>
+
   <div class="cuerpo-sistema">
 
     <aside class="sidebar">
       <nav class="menu-lateral">
 
-        <a
-          *ngIf="esAdministrador()"
-          routerLink="/dashboard"
-          routerLinkActive="activo">
+        <a *ngIf="esAdministrador()" routerLink="/dashboard" routerLinkActive="activo" (click)="cerrarSidebar()">
           Dashboard
         </a>
 
-        <a routerLink="/produccion" routerLinkActive="activo">
+        <a routerLink="/produccion" routerLinkActive="activo" (click)="cerrarSidebar()">
           Producción
         </a>
 
-        <a routerLink="/control-turno-reparto" routerLinkActive="activo">
+        <a routerLink="/control-turno-reparto" routerLinkActive="activo" (click)="cerrarSidebar()">
           Control de Turno y Reparto
         </a>
 
-        <a routerLink="/informes-turno" routerLinkActive="activo">
+        <a routerLink="/informes-turno" routerLinkActive="activo" (click)="cerrarSidebar()">
           Informes de Turno
         </a>
 
-        <a routerLink="/bodega" routerLinkActive="activo">
+        <a routerLink="/bodega" routerLinkActive="activo" (click)="cerrarSidebar()">
           Bodega
         </a>
 
-        <a routerLink="/pedidos-despacho" routerLinkActive="activo">
+        <a routerLink="/pedidos-despacho" routerLinkActive="activo" (click)="cerrarSidebar()">
           Pedidos/Despacho
         </a>
 
-        <a
-          *ngIf="esAdministrador()"
-          routerLink="/pagos-cobros"
-          routerLinkActive="activo">
+        <a *ngIf="esAdministrador()" routerLink="/pagos-cobros" routerLinkActive="activo" (click)="cerrarSidebar()">
           Pagos/Cobros
         </a>
 
-        <a
-          *ngIf="esAdministrador()"
-          routerLink="/clientes-saldos"
-          routerLinkActive="activo">
+        <a *ngIf="esAdministrador()" routerLink="/clientes-saldos" routerLinkActive="activo" (click)="cerrarSidebar()">
           Clientes/Saldos
         </a>
 
-        <a
-          *ngIf="esAdministrador()"
-          routerLink="/reportes"
-          routerLinkActive="activo">
+        <a *ngIf="esAdministrador()" routerLink="/reportes" routerLinkActive="activo" (click)="cerrarSidebar()">
           Reportes
         </a>
 
-        <a
-          *ngIf="esAdministrador()"
-          routerLink="/gestion-usuarios"
-          routerLinkActive="activo">
+        <a *ngIf="esAdministrador()" routerLink="/gestion-usuarios" routerLinkActive="activo" (click)="cerrarSidebar()">
           Gestión de Usuarios
         </a>
 

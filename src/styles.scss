@@ -220,3 +220,37 @@ body.modo-oscuro {
   font-size: 1.75rem !important;
   font-weight: 700;
 }
+
+/* ─── Responsive global ─────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Grillas pasan a 1 columna */
+  .grilla-tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tablas con scroll horizontal */
+  .tabla {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fila de acciones en columna */
+  .fila-acciones {
+    flex-direction: column;
+    align-items: stretch;
+
+    select.campo,
+    input.campo {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  /* Títulos más pequeños */
+  .encabezado-pagina h1,
+  .encabezado h1 {
+    font-size: 1.4rem !important;
+  }
+}

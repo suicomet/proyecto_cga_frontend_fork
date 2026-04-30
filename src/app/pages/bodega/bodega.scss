@@ -460,3 +460,108 @@ tbody {
     width: 100%;
   }
 }
+
+@media (max-width: 768px) {
+
+  /* Encabezado en columna */
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+
+    h1 {
+      font-size: 1.4rem;
+    }
+  }
+
+  .acciones-encabezado {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Resumen en 1 columna */
+  .resumen-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Filtros en 1 columna */
+  .panel-filtros-bodega {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-filtros {
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Tabla principal con scroll horizontal */
+  .tabla-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .tabla-wrapper table {
+    min-width: 480px;
+  }
+
+  /* Modales full width en móvil */
+  .modal-panel {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .modal-panel-gestion {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 2rem);
+  }
+
+  /* Tabla gestión insumos con scroll */
+  .tabla-gestion-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-gestion-wrapper table {
+    min-width: 480px;
+  }
+
+  /* Grid dos columnas a 1 columna */
+  .grid-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  /* Fila insumo en columna */
+  .fila-insumo {
+    grid-template-columns: 1fr;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Footer modal en columna */
+  .modal-footer {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Acciones edición en columna */
+  .acciones-edicion {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

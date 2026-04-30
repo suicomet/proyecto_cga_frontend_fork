@@ -610,61 +610,193 @@ table {
 
 @media (max-width: 780px) {
   .contenedor-control-turno {
-    padding: 14px;
+    padding: 12px;
   }
 
+  /* Encabezado en columna */
   .encabezado-operativo {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
+
+    h1 {
+      font-size: 20px;
+    }
+
+    .subtitulo {
+      font-size: 11px;
+    }
   }
 
+  /* Tarjetas fecha/turno/estado en fila compacta */
   .datos-turno {
     width: 100%;
     justify-content: stretch;
+    gap: 6px;
 
     article {
       flex: 1;
-      min-width: 120px;
+      min-width: 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+
+      span {
+        font-size: 10px;
+      }
+
+      strong {
+        font-size: 13px;
+      }
     }
+  }
+
+  /* Aviso flujo en columna */
+  .aviso-flujo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+
+    h2 {
+      font-size: 16px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+
+    strong {
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+    }
+  }
+
+  /* Barra secundaria en columna */
+  .barra-secundaria {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
   }
 
   .campo-consulta {
     grid-template-columns: 1fr;
   }
 
-  .titulo-planilla {
+  .acciones-consulta {
+    justify-content: stretch;
     flex-direction: column;
+    gap: 8px;
+
+    button {
+      width: 100%;
+    }
   }
 
-  .campo-cantidad,
-  .campo-repartidor {
-    grid-template-columns: 1fr;
+  /* Título planilla en columna */
+  .titulo-planilla {
+    flex-direction: column;
+    gap: 8px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Tabla con scroll horizontal */
+  .tabla-planilla {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
   }
 
   table {
-    min-width: 720px;
+    min-width: 560px;
   }
 
-  .tabla-planilla {
-    overflow-x: auto;
+  /* Campos dentro de tabla más compactos */
+  .campo-cantidad {
+    grid-template-columns: 1fr 90px;
+    gap: 4px;
   }
 
+  .campo-repartidor {
+    grid-template-columns: 1fr 34px;
+    gap: 4px;
+  }
+
+  /* Resumen en 2 columnas */
+  .grupo-resumen {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+
+    article {
+      padding: 8px;
+
+      strong {
+        font-size: 15px;
+      }
+    }
+  }
+
+  /* Campos operativos en 2 columnas */
+  .campos-operativos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Acciones cierre full width */
   .acciones-cierre {
     grid-template-columns: 1fr;
   }
 
-  .aviso-flujo {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .aviso-flujo strong,
-  .modal-acciones button {
-    width: 100%;
-    text-align: center;
-  }
-
+  /* Modal acciones en columna */
   .modal-acciones {
     flex-direction: column;
+
+    button {
+      width: 100%;
+      text-align: center;
+    }
   }
 }
+
+/* Evitar desborde horizontal */
+  .contenedor-control-turno,
+  .tarjeta,
+  .resumen-turno,
+  .panel-operativo {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  /* Grupo resumen — forzar que no se corte */
+  .grupo-resumen {
+    grid-template-columns: 1fr 1fr;
+
+    article {
+      min-width: 0;
+      overflow: hidden;
+
+      span {
+        font-size: 10px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      strong {
+        font-size: 14px;
+      }
+    }
+  }
+
+  /* Campos operativos — 1 columna para evitar corte */
+  .campos-operativos {
+    grid-template-columns: 1fr;
+  }
+
+  /* Resultado rinde full width */
+  .resultado-rinde {
+    grid-template-columns: 1fr;
+  }
