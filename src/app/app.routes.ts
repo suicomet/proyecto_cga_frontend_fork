@@ -9,7 +9,6 @@ import { BodegaComponent } from './pages/bodega/bodega';
 import { PedidosDespacho } from './pages/pedidos-despacho/pedidos-despacho';
 import { PagosCobros } from './pages/pagos-cobros/pagos-cobros';
 import { ClientesSaldos } from './pages/clientes-saldos/clientes-saldos';
-import { Reportes } from './pages/reportes/reportes';
 import { GestionUsuarios } from './pages/gestion-usuarios/gestion-usuarios';
 import { ControlTurnoReparto } from './pages/control-turno-reparto/control-turno-reparto';
 import { InformesTurno } from './pages/informes-turno/informes-turno';
@@ -65,11 +64,6 @@ export const routes: Routes = [
       {
         path: 'clientes-saldos',
         component: ClientesSaldos,
-        canActivate: [adminGuard]
-      },
-      {
-        path: 'reportes',
-        component: Reportes,
         canActivate: [adminGuard]
       },
       {
