@@ -1,44 +1,47 @@
+/* ─── Fuente ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap');
+
 :root {
-  /* Colores base estilo panel administrativo */
+  /* Fuente */
+  --fuente-principal: 'Geist', Arial, sans-serif;
+
+  /* Modo claro */
   --color-fondo: #f0f3f4;
   --color-superficie: #ffffff;
   --color-superficie-blanca: #ffffff;
-  --color-borde: #dfe6e9;
+  --color-borde: #e2e8f0;
 
   /* Texto */
-  --color-texto: #2f3a40;
-  --color-texto-suave: #6f7d85;
-  --color-texto-claro: #a8b0b6;
+  --color-texto: #1e293b;
+  --color-texto-suave: #64748b;
+  --color-texto-claro: #94a3b8;
 
   /* Header / Sidebar */
-  --color-header: #16232d;
-  --color-sidebar: #1b2a34;
-  --color-sidebar-borde: #223643;
-  --color-sidebar-texto: #dce5ea;
-  --color-sidebar-texto-suave: #9fb0bb;
-  --color-sidebar-hover: #243845;
+  --color-header: #0f172a;
+  --color-sidebar: #0f172a;
+  --color-sidebar-borde: #1e293b;
+  --color-sidebar-texto: #e2e8f0;
+  --color-sidebar-texto-suave: #94a3b8;
+  --color-sidebar-hover: #1e293b;
   --color-sidebar-activo: #209e91;
 
   /* Identidad visual */
-  --color-primario: #209e91;
-  --color-primario-hover: #17877c;
+  --color-primario: #23ba7d;
+  --color-primario-hover: #1da06a;
   --color-secundario: #2dacd1;
   --color-menu-activo: #209e91;
-  --color-menu-hover: #243845;
+  --color-menu-hover: #1e293b;
 
   /* Estados */
-  --color-exito: #90b900;
-  --color-alerta: #dfb81c;
-  --color-error: #e85656;
+  --color-exito: #22c55e;
+  --color-alerta: #f59e0b;
+  --color-error: #ef4444;
   --color-info: #2dacd1;
 
   /* Diseño */
-  --radio-borde: 4px;
-  --radio-borde-sm: 3px;
-  --sombra-suave: 0 2px 8px rgba(0, 0, 0, 0.12);
-
-  /* Fuente */
-  --fuente-principal: Arial, Helvetica, sans-serif;
+  --radio-borde: 12px;
+  --radio-borde-sm: 8px;
+  --sombra-suave: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 /* Reset básico */
@@ -88,6 +91,7 @@ select {
   padding: 0.75rem 1rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: var(--fuente-principal);
 }
 
 .boton-primario:hover {
@@ -102,6 +106,7 @@ select {
   padding: 0.75rem 1rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: var(--fuente-principal);
 }
 
 .boton-secundario:hover {
@@ -116,10 +121,12 @@ select {
   outline: none;
   background: var(--color-superficie);
   color: var(--color-texto);
+  font-family: var(--fuente-principal);
 }
 
 .campo:focus {
   border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(32, 158, 145, 0.12);
 }
 
 .encabezado-pagina {
@@ -144,6 +151,16 @@ select {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.fila-acciones select.campo {
+  min-width: 180px;
+}
+
+.fila-acciones input.campo {
+  flex: 1;
+  min-width: 200px;
 }
 
 .grilla-tarjetas {
@@ -155,7 +172,10 @@ select {
 .tabla th {
   background: var(--color-fondo);
   color: var(--color-texto-suave);
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .tabla th,
@@ -185,11 +205,18 @@ select {
 
 /* Modo oscuro */
 body.modo-oscuro {
-  --color-fondo: #0f1923;
-  --color-superficie: #16232d;
-  --color-superficie-blanca: #1b2a34;
-  --color-borde: #223643;
-  --color-texto: #dce5ea;
-  --color-texto-suave: #9fb0bb;
-  --color-texto-claro: #6f7d85;
+  --color-fondo: #0a0f1a;
+  --color-superficie: #111827;
+  --color-superficie-blanca: #1a2435;
+  --color-borde: #1e293b;
+  --color-texto: #e2e8f0;
+  --color-texto-suave: #94a3b8;
+  --color-texto-claro: #64748b;
+}
+
+/* Estandarización de títulos de página */
+.encabezado-pagina h1,
+.encabezado h1 {
+  font-size: 1.75rem !important;
+  font-weight: 700;
 }
