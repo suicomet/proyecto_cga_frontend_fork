@@ -50,13 +50,21 @@
 
 .panel-filtros {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
   gap: 1rem;
-  align-items: end;
+  align-items: start;
   background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 16px;
   padding: 1rem;
+}
+
+.panel-filtros-bodega {
+  grid-template-columns:
+    minmax(210px, 0.9fr)
+    minmax(320px, 1.4fr)
+    minmax(220px, 0.85fr)
+    minmax(220px, 0.85fr)
+    auto;
 }
 
 .campo-filtro,
@@ -69,6 +77,11 @@
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--color-texto);
+  }
+
+  small {
+    color: var(--color-texto-suave);
+    font-size: 0.78rem;
   }
 
   input,
@@ -411,6 +424,16 @@ tbody {
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .panel-filtros-bodega {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .acciones-filtros {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 900px) {

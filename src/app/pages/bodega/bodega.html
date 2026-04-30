@@ -45,7 +45,17 @@
     </article>
   </div>
 
-  <div class="panel-filtros">
+  <div class="panel-filtros panel-filtros-bodega">
+    <div class="campo-filtro">
+      <label for="fechaFiltroBodega">Mostrar movimientos por fecha</label>
+      <input
+        id="fechaFiltroBodega"
+        type="date"
+        [(ngModel)]="fechaSeleccionada"
+      />
+      <small>Deja la fecha vacía para ver todos los días.</small>
+    </div>
+
     <div class="campo-filtro">
       <label for="busquedaInsumo">Buscar insumo</label>
       <input
@@ -54,6 +64,7 @@
         [(ngModel)]="textoBusqueda"
         placeholder="Ej: harina"
       />
+      <small>Escribe para filtrar automáticamente.</small>
     </div>
 
     <div class="campo-filtro">
@@ -89,7 +100,7 @@
     @if (cargando()) {
       <div class="estado-tabla">Cargando movimientos de bodega...</div>
     } @else if (movimientosFiltrados.length === 0) {
-      <div class="estado-tabla">No hay movimientos para los filtros seleccionados.</div>
+      <div class="estado-tabla">No hay movimientos de bodega para la fecha y filtros seleccionados.</div>
     } @else {
       <table>
         <thead>

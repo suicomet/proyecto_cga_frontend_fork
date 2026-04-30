@@ -36,6 +36,7 @@ export class BodegaComponent implements OnInit {
   mensajeErrorGestionInsumos = signal<string>('');
   mensajeExitoGestionInsumos = signal<string>('');
 
+  fechaSeleccionada = '';
   textoBusqueda = '';
   tipoMovimientoSeleccionado = '';
   turnoSeleccionado = '';
@@ -73,23 +74,29 @@ export class BodegaComponent implements OnInit {
   }
 
   get movimientosFiltrados(): MovimientoBodega[] {
+    const fecha = this.fechaSeleccionada.trim();
     const texto = this.normalizarTexto(this.textoBusqueda.trim());
     const tipo = this.tipoMovimientoSeleccionado.trim().toUpperCase();
     const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
 
     return this.movimientos().filter((movimiento) => {
+      const coincideFecha =
+        !fecha ||
+        movimiento.fecha_movimiento === fecha;
+
       const coincideTexto =
         !texto ||
         this.normalizarTexto(movimiento.insumo_nombre).includes(texto);
 
       const coincideTipo =
-        !tipo || movimiento.tipo_movimiento.toUpperCase() === tipo;
+        !tipo ||
+        movimiento.tipo_movimiento.toUpperCase() === tipo;
 
       const coincideTurno =
         !turno ||
         this.normalizarTexto(movimiento.turno_nombre ?? '') === turno;
 
-      return coincideTexto && coincideTipo && coincideTurno;
+      return coincideFecha && coincideTexto && coincideTipo && coincideTurno;
     });
   }
 
@@ -434,6 +441,7 @@ export class BodegaComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+    this.fechaSeleccionada = '';
     this.textoBusqueda = '';
     this.tipoMovimientoSeleccionado = '';
     this.turnoSeleccionado = '';
