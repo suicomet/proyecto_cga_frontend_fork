@@ -79,25 +79,35 @@ export class BodegaComponent implements OnInit {
     const tipo = this.tipoMovimientoSeleccionado.trim().toUpperCase();
     const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
 
-    return this.movimientos().filter((movimiento) => {
-      const coincideFecha =
-        !fecha ||
-        movimiento.fecha_movimiento === fecha;
+    return this.movimientos()
+      .filter((movimiento) => {
+        const coincideFecha =
+          !fecha ||
+          movimiento.fecha_movimiento === fecha;
 
-      const coincideTexto =
-        !texto ||
-        this.normalizarTexto(movimiento.insumo_nombre).includes(texto);
+        const coincideTexto =
+          !texto ||
+          this.normalizarTexto(movimiento.insumo_nombre).includes(texto);
 
-      const coincideTipo =
-        !tipo ||
-        movimiento.tipo_movimiento.toUpperCase() === tipo;
+        const coincideTipo =
+          !tipo ||
+          movimiento.tipo_movimiento.toUpperCase() === tipo;
 
-      const coincideTurno =
-        !turno ||
-        this.normalizarTexto(movimiento.turno_nombre ?? '') === turno;
+        const coincideTurno =
+          !turno ||
+          this.normalizarTexto(movimiento.turno_nombre ?? '') === turno;
 
-      return coincideFecha && coincideTexto && coincideTipo && coincideTurno;
-    });
+        return coincideFecha && coincideTexto && coincideTipo && coincideTurno;
+      })
+      .sort((a, b) => {
+        const comparacionFecha = b.fecha_movimiento.localeCompare(a.fecha_movimiento);
+
+        if (comparacionFecha !== 0) {
+          return comparacionFecha;
+        }
+
+        return Number(b.id_movimiento_bodega) - Number(a.id_movimiento_bodega);
+      });
   }
 
   get turnosFormulario(): Turno[] {

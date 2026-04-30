@@ -79,10 +79,11 @@ export class ProduccionComponent implements OnInit {
   }
 
   get produccionesFiltradas(): ProduccionRegistro[] {
-    const fecha = this.fechaSeleccionada.trim();
-    const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
+  const fecha = this.fechaSeleccionada.trim();
+  const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
 
-    return this.producciones().filter((produccion) => {
+  return this.producciones()
+    .filter((produccion) => {
       const coincideFecha =
         !fecha ||
         produccion.jornada_fecha === fecha;
@@ -96,8 +97,17 @@ export class ProduccionComponent implements OnInit {
         this.normalizarTexto(produccion.turno_nombre ?? '') === turno;
 
       return coincideFecha && coincideTipo && coincideTurno;
+    })
+    .sort((a, b) => {
+      const comparacionFecha = b.jornada_fecha.localeCompare(a.jornada_fecha);
+
+      if (comparacionFecha !== 0) {
+        return comparacionFecha;
+      }
+
+      return Number(b.id_produccion) - Number(a.id_produccion);
     });
-  }
+}
 
   get todosLosTiposActivos(): boolean {
     return this.tiposSeleccionados.length === 0;
