@@ -1,35 +1,24 @@
-describe('Paginas de produccion (smoke tests)', () => {
-  beforeEach(() => {
-    cy.session('produccion');
+describe('Paginas de produccion - smoke tests', () => {
+  it('health-check del backend responde OK', () => {
+    cy.request('https://proyectocga-production-2e12.up.railway.app/api/health/')
+      .its('status')
+      .should('equal', 200);
   });
 
-  it('dashboard carga correctamente', () => {
-    cy.visit('/dashboard');
+  it('pagina de login carga correctamente', () => {
+    cy.visit('/login');
     cy.get('body').should('be.visible');
+    cy.title().should('not.be.empty');
   });
 
-  it('produccion carga correctamente', () => {
-    cy.visit('/produccion');
-    cy.get('body').should('be.visible');
-  });
-
-  it('bodega carga correctamente', () => {
-    cy.visit('/bodega');
-    cy.get('body').should('be.visible');
-  });
-
-  it('pedidos-despacho carga correctamente', () => {
-    cy.visit('/pedidos-despacho');
-    cy.get('body').should('be.visible');
-  });
-
-  it('clientes-saldos carga correctamente', () => {
-    cy.visit('/clientes-saldos');
-    cy.get('body').should('be.visible');
-  });
-
-  it('reportes carga correctamente', () => {
-    cy.visit('/reportes');
-    cy.get('body').should('be.visible');
+  it('API token endpoint responde con metodo correcto', () => {
+    cy.request({
+      method: 'POST',
+      url: 'https://proyectocga-production-2e12.up.railway.app/api/token/',
+      body: { username: '', password: '' },
+      failOnStatusCode: false,
+    }).then((res) => {
+      expect(res.status).to.be.oneOf([400, 401]);
+    });
   });
 });

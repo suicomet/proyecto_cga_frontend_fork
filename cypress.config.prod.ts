@@ -2,7 +2,7 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'https://proyecto-cga-frontend-fork.vercel.app',
+    baseUrl: 'https://proyecto-cga-frontend.vercel.app',
     supportFile: 'cypress/support/e2e.ts',
     specPattern: 'cypress/suite-produccion/**/*.cy.ts',
     video: true,
