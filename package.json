@@ -12,7 +12,9 @@
     "e2e": "cypress run",
     "e2e:open": "cypress open",
     "e2e:report": "cypress run --reporter mochawesome",
-    "e2e:ci": "cypress run --reporter mochawesome --record false"
+    "e2e:ci": "cypress run --reporter mochawesome --record false",
+    "e2e:prod": "cypress run --config-file cypress.config.prod.ts --reporter mochawesome",
+    "e2e:prod:open": "cypress open --config-file cypress.config.prod.ts"
   },
   "private": true,
   "dependencies": {
