@@ -11,6 +11,13 @@ import {
   Turno
 } from '../../features/bodega/services/bodega.service';
 
+interface ResumenStockInsumo {
+  id_insumo: number;
+  nombre_insumo: string;
+  unidad_control: string;
+  stock_fecha: number;
+}
+
 @Component({
   selector: 'app-bodega',
   standalone: true,
@@ -36,6 +43,7 @@ export class BodegaComponent implements OnInit {
   mensajeErrorGestionInsumos = signal<string>('');
   mensajeExitoGestionInsumos = signal<string>('');
 
+  fechaSeleccionada = '';
   textoBusqueda = '';
   tipoMovimientoSeleccionado = '';
   turnoSeleccionado = '';
@@ -73,24 +81,40 @@ export class BodegaComponent implements OnInit {
   }
 
   get movimientosFiltrados(): MovimientoBodega[] {
+    const fecha = this.fechaSeleccionada.trim();
     const texto = this.normalizarTexto(this.textoBusqueda.trim());
     const tipo = this.tipoMovimientoSeleccionado.trim().toUpperCase();
     const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
 
-    return this.movimientos().filter((movimiento) => {
-      const coincideTexto =
-        !texto ||
-        this.normalizarTexto(movimiento.insumo_nombre).includes(texto);
+    return this.movimientos()
+      .filter((movimiento) => {
+        const coincideFecha =
+          !fecha ||
+          movimiento.fecha_movimiento === fecha;
 
-      const coincideTipo =
-        !tipo || movimiento.tipo_movimiento.toUpperCase() === tipo;
+        const coincideTexto =
+          !texto ||
+          this.normalizarTexto(movimiento.insumo_nombre).includes(texto);
 
-      const coincideTurno =
-        !turno ||
-        this.normalizarTexto(movimiento.turno_nombre ?? '') === turno;
+        const coincideTipo =
+          !tipo ||
+          movimiento.tipo_movimiento.toUpperCase() === tipo;
 
-      return coincideTexto && coincideTipo && coincideTurno;
-    });
+        const coincideTurno =
+          !turno ||
+          this.normalizarTexto(movimiento.turno_nombre ?? '') === turno;
+
+        return coincideFecha && coincideTexto && coincideTipo && coincideTurno;
+      })
+      .sort((a, b) => {
+        const comparacionFecha = b.fecha_movimiento.localeCompare(a.fecha_movimiento);
+
+        if (comparacionFecha !== 0) {
+          return comparacionFecha;
+        }
+
+        return Number(b.id_movimiento_bodega) - Number(a.id_movimiento_bodega);
+      });
   }
 
   get turnosFormulario(): Turno[] {
@@ -102,6 +126,57 @@ export class BodegaComponent implements OnInit {
 
   get insumosActivos(): Insumo[] {
     return this.insumos().filter((insumo) => insumo.activo === 'S');
+  }
+
+  get fechaStockConsulta(): string {
+    return this.fechaSeleccionada || this.obtenerFechaHoy();
+  }
+
+  get resumenStockFecha(): ResumenStockInsumo[] {
+    const fechaCorte = this.fechaStockConsulta;
+    const texto = this.normalizarTexto(this.textoBusqueda.trim());
+
+    return this.insumosActivos
+      .filter((insumo) => {
+        return !texto || this.normalizarTexto(insumo.nombre_insumo).includes(texto);
+      })
+      .map((insumo) => {
+        const stockBase = this.normalizarNumero(insumo.stock_sugerido_inicial);
+
+        const totalMovimientos = this.movimientos()
+          .filter((movimiento) => {
+            return (
+              Number(movimiento.id_insumo) === Number(insumo.id_insumo) &&
+              movimiento.fecha_movimiento <= fechaCorte
+            );
+          })
+          .reduce((acumulado, movimiento) => {
+            const cantidad = this.normalizarNumero(movimiento.cantidad);
+            const tipo = movimiento.tipo_movimiento.toUpperCase();
+
+            if (tipo === 'ENTRADA') {
+              return acumulado + cantidad;
+            }
+
+            if (tipo === 'SALIDA') {
+              return acumulado - cantidad;
+            }
+
+            if (tipo === 'AJUSTE') {
+              return acumulado + cantidad;
+            }
+
+            return acumulado;
+          }, 0);
+
+        return {
+          id_insumo: insumo.id_insumo,
+          nombre_insumo: insumo.nombre_insumo,
+          unidad_control: insumo.unidad_control,
+          stock_fecha: stockBase + totalMovimientos
+        };
+      })
+      .sort((a, b) => a.nombre_insumo.localeCompare(b.nombre_insumo));
   }
 
   cargarDatosIniciales(): void {
@@ -434,6 +509,7 @@ export class BodegaComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+    this.fechaSeleccionada = '';
     this.textoBusqueda = '';
     this.tipoMovimientoSeleccionado = '';
     this.turnoSeleccionado = '';
@@ -461,6 +537,21 @@ export class BodegaComponent implements OnInit {
     return numero.toLocaleString('es-CL', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
+    });
+  }
+
+  formatearStock(valor: string | number): string {
+    const numero = this.normalizarNumero(valor);
+
+    if (Number.isInteger(numero)) {
+      return numero.toLocaleString('es-CL', {
+        maximumFractionDigits: 0
+      });
+    }
+
+    return numero.toLocaleString('es-CL', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
     });
   }
 
@@ -513,6 +604,15 @@ export class BodegaComponent implements OnInit {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
+  }
+
+  private normalizarNumero(valor: string | number | null | undefined): number {
+    if (valor === null || valor === undefined || valor === '') {
+      return 0;
+    }
+
+    const numero = Number(String(valor).replace(',', '.'));
+    return Number.isNaN(numero) ? 0 : numero;
   }
 
   private obtenerMensajeError(error: any, mensajeDefecto: string): string {

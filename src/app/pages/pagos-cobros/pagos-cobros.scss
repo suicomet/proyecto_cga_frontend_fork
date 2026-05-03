@@ -323,3 +323,64 @@
     width: 100%;
   }
 }
+
+@media (max-width: 768px) {
+
+  /* Fila de acciones en columna */
+  .fila-pagos {
+    flex-direction: column;
+
+    input.campo,
+    select.campo {
+      max-width: none;
+      width: 100%;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+
+  /* Resumen en 1 columna */
+  .grilla-resumen {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Tabla con scroll horizontal forzado */
+  .tabla-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-pagos {
+    min-width: 700px;
+  }
+
+  /* Modal full width */
+  .modal-contenido {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  /* Resumen modal en 1 columna */
+  .resumen-modal {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .vista-previa-pago {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Acciones modal en columna */
+  .acciones-modal {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

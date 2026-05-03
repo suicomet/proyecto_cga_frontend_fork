@@ -30,13 +30,16 @@
 
 .panel-filtros {
   display: grid;
-  grid-template-columns: 2fr 1fr auto;
   gap: 1rem;
   align-items: end;
   background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 16px;
   padding: 1rem;
+}
+
+.panel-filtros-produccion {
+  grid-template-columns: minmax(190px, 0.8fr) minmax(360px, 1.7fr) minmax(220px, 0.8fr) auto;
 }
 
 .resumen-grid {
@@ -93,6 +96,40 @@
       border-color: var(--color-primario);
       box-shadow: 0 0 0 3px rgba(34, 166, 153, 0.14);
     }
+  }
+}
+
+.campo-filtro small {
+  color: var(--color-texto-suave);
+  font-size: 0.78rem;
+}
+
+.chips-tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.chip-filtro {
+  border: 1px solid var(--color-borde);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  border-radius: 999px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+
+  &:hover {
+    border-color: var(--color-primario);
+    background: rgba(34, 166, 153, 0.08);
+  }
+
+  &.activo {
+    background: var(--color-primario);
+    border-color: var(--color-primario);
+    color: #fff;
   }
 }
 
@@ -332,6 +369,16 @@ tbody {
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .panel-filtros-produccion {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .acciones-filtros {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 900px) {

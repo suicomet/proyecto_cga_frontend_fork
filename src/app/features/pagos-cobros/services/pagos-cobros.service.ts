@@ -12,10 +12,10 @@ export interface MovimientoPago {
   jornada_fecha: string;
   venta_linea: string | number;
   precio_cobrado: string | number;
-  descuento_porcentaje_aplicado: string | number;
+  descuento_porcentaje_aplicado: string | number | null;
   cantidad_entregada: string | number;
   unidad_medida: 'KILO' | 'UNIDAD';
-  cancelacion: string | number;
+  cancelacion: string | number | null;
   id_jornada: number;
   id_cliente: number;
   id_distribucion: number;

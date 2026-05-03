@@ -28,15 +28,43 @@
     </div>
   }
 
-  <div class="panel-filtros">
+  <div class="panel-filtros panel-filtros-produccion">
     <div class="campo-filtro">
-      <label for="busquedaProduccion">Buscar tipo de producción</label>
+      <label for="fechaFiltroProduccion">Mostrar producción por fecha</label>
       <input
-        id="busquedaProduccion"
-        type="text"
-        [(ngModel)]="textoBusqueda"
-        placeholder="Ej: integral"
+        id="fechaFiltroProduccion"
+        type="date"
+        [(ngModel)]="fechaSeleccionada"
       />
+      <small>Deja la fecha vacía para ver todos los días.</small>
+    </div>
+
+    <div class="campo-filtro">
+      <label>Mostrar producción por tipo</label>
+
+      <div class="chips-tipos">
+        <button
+          type="button"
+          class="chip-filtro"
+          [class.activo]="todosLosTiposActivos"
+          (click)="mostrarTodosLosTipos()"
+        >
+          Todos
+        </button>
+
+        @for (tipo of tiposProduccion(); track tipo.id_tipo_produccion) {
+          <button
+            type="button"
+            class="chip-filtro"
+            [class.activo]="tipoEstaSeleccionado(tipo.id_tipo_produccion)"
+            (click)="alternarTipoProduccion(tipo.id_tipo_produccion)"
+          >
+            {{ tipo.nombre_tipo_produccion }}
+          </button>
+        }
+      </div>
+
+      <small>Selecciona uno o más tipos. Los filtros se aplican automáticamente.</small>
     </div>
 
     <div class="campo-filtro">
@@ -79,7 +107,7 @@
     @if (cargando()) {
       <div class="estado-tabla">Cargando registros de producción...</div>
     } @else if (produccionesFiltradas.length === 0) {
-      <div class="estado-tabla">No hay registros para los filtros seleccionados.</div>
+      <div class="estado-tabla">No hay producción registrada para la fecha y filtros seleccionados.</div>
     } @else {
       <table>
         <thead>

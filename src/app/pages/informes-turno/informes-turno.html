@@ -1,0 +1,338 @@
+﻿<section class="pagina-informes-turno">
+
+  <div class="encabezado-pagina">
+    <div>
+      <span class="etiqueta-seccion">Operación diaria</span>
+      <h1>Informes de Turno</h1>
+      <p>
+        Consulta histórica de cierres generados desde Control de Turno y Reparto.
+      </p>
+    </div>
+
+    <button type="button" class="boton-secundario" (click)="cargarInformes()">
+      Actualizar
+    </button>
+  </div>
+
+  <div class="tarjetas-resumen">
+    <div class="tarjeta-resumen">
+      <span>Total informes filtrados</span>
+      <strong>{{ totalInformes() }}</strong>
+    </div>
+
+    <div class="tarjeta-resumen">
+      <span>Cerrados</span>
+      <strong>{{ totalCerrados() }}</strong>
+    </div>
+
+    <div class="tarjeta-resumen">
+      <span>En proceso</span>
+      <strong>{{ totalEnProceso() }}</strong>
+    </div>
+  </div>
+
+  <section class="panel-filtros">
+    <div class="campo-filtro">
+      <label for="fechaDesde">Fecha desde</label>
+      <input id="fechaDesde" type="date" [(ngModel)]="filtroFechaDesde">
+    </div>
+
+    <div class="campo-filtro">
+      <label for="fechaHasta">Fecha hasta</label>
+      <input id="fechaHasta" type="date" [(ngModel)]="filtroFechaHasta">
+    </div>
+
+    <div class="campo-filtro">
+      <label for="turno">Turno</label>
+      <select id="turno" [(ngModel)]="filtroTurno">
+        <option value="">Todos</option>
+
+        @for (turno of obtenerTurnosDisponibles(); track turno) {
+          <option [value]="turno">
+            {{ turno }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <div class="campo-filtro">
+      <label for="estado">Estado</label>
+      <select id="estado" [(ngModel)]="filtroEstado">
+        <option value="">Todos</option>
+        <option value="EN_PROCESO">En proceso</option>
+        <option value="CERRADO">Cerrado</option>
+      </select>
+    </div>
+
+    <div class="acciones-filtro">
+      <button type="button" class="boton-principal" (click)="aplicarFiltros()">
+        Buscar
+      </button>
+
+      <button type="button" class="boton-limpiar" (click)="limpiarFiltros()">
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  @if (mensajeError) {
+    <p class="mensaje-error">
+      {{ mensajeError }}
+    </p>
+  }
+
+  @if (cargando) {
+    <p class="mensaje-carga">
+      Cargando informes...
+    </p>
+  }
+
+  @if (!cargando) {
+    <section class="listado-informes">
+
+      <div class="encabezado-listado">
+        <h2>Informes encontrados</h2>
+        <span>{{ informesFiltrados.length }} registro(s)</span>
+      </div>
+
+      @if (informesFiltrados.length === 0) {
+        <div class="sin-datos">
+          No hay informes que coincidan con los filtros seleccionados.
+        </div>
+      }
+
+      @for (informe of informesFiltrados; track obtenerIdInforme(informe)) {
+        <div
+          class="tarjeta-informe"
+          [class.tarjeta-activa]="estaInformeSeleccionado(informe)">
+
+          <div class="informe-principal">
+            <div>
+              <span class="etiqueta-seccion">Informe #{{ obtenerIdInforme(informe) }}</span>
+              <h2>{{ formatearFecha(informe.jornada_fecha) }} - {{ informe.turno_nombre || 'Sin turno' }}</h2>
+            </div>
+
+            <span class="insignia-estado" [ngClass]="obtenerClaseEstado(informe)">
+              {{ informe.estado || 'Sin estado' }}
+            </span>
+          </div>
+
+          <div class="datos-informe">
+            <div>
+              <span>Quintales</span>
+              <strong>{{ formatearNumero(informe.quintales_cocidos) }}</strong>
+            </div>
+
+            <div>
+              <span>Kilos totales</span>
+              <strong>{{ formatearNumero(informe.kilos_totales) }} kg</strong>
+            </div>
+
+            <div>
+              <span>Rinde</span>
+              <strong>{{ formatearNumero(informe.rinde, 4) }}</strong>
+            </div>
+
+            <div>
+              <span>Fecha cierre</span>
+              <strong>{{ formatearFechaHora(informe.fecha_cierre) }}</strong>
+            </div>
+          </div>
+
+          <div class="acciones-informe">
+            <button
+              type="button"
+              class="boton-ver"
+              [class.activo-detalle]="estaInformeSeleccionado(informe)"
+              (click)="seleccionarInforme(informe)">
+              {{ estaInformeSeleccionado(informe) ? 'Ocultar detalle' : 'Ver detalle' }}
+            </button>
+          </div>
+
+          @if (estaInformeSeleccionado(informe)) {
+            <section class="panel-detalle detalle-en-tarjeta">
+              <div class="detalle-encabezado">
+                <div>
+                  <span class="etiqueta-seccion">Detalle del informe</span>
+                  <h2>
+                    {{ formatearFecha(informe.jornada_fecha) }} - {{ informe.turno_nombre || 'Sin turno' }}
+                  </h2>
+                </div>
+
+                <button type="button" class="boton-cerrar" (click)="cerrarDetalle()">
+                  Cerrar
+                </button>
+              </div>
+
+              <div class="detalle-grid">
+                <div class="bloque-detalle">
+                  <h3>Datos generales</h3>
+
+                  <dl>
+                    <div>
+                      <dt>ID informe</dt>
+                      <dd>{{ obtenerIdInforme(informe) }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Estado</dt>
+                      <dd>
+                        <span class="insignia-estado" [ngClass]="obtenerClaseEstado(informe)">
+                          {{ informe.estado || 'Sin estado' }}
+                        </span>
+                      </dd>
+                    </div>
+
+                    <div>
+                      <dt>Fecha registro</dt>
+                      <dd>{{ formatearFechaHora(informe.fecha_registro) }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Fecha cierre</dt>
+                      <dd>{{ formatearFechaHora(informe.fecha_cierre) }}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="bloque-detalle">
+                  <h3>Producción y rinde</h3>
+
+                  <dl>
+                    <div>
+                      <dt>Quintales cocidos</dt>
+                      <dd>{{ formatearNumero(informe.quintales_cocidos) }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Kilos directos</dt>
+                      <dd>{{ formatearNumero(informe.kilos_directos) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Unidades totales</dt>
+                      <dd>{{ formatearNumero(informe.unidades_totales) }}</dd>
+                    </div>
+
+                    <div>
+                      <dt>Kilos equivalentes</dt>
+                      <dd>{{ formatearNumero(informe.kilos_equivalentes) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Kilos totales</dt>
+                      <dd>{{ formatearNumero(informe.kilos_totales) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Rinde</dt>
+                      <dd>{{ formatearNumero(informe.rinde, 4) }}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="bloque-detalle">
+                  <h3>Datos complementarios</h3>
+
+                  <dl>
+                    <div>
+                      <dt>Mostrador</dt>
+                      <dd>{{ formatearNumero(informe.mostrador_kg) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Raciones</dt>
+                      <dd>{{ formatearNumero(informe.raciones_kg) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Pan especial</dt>
+                      <dd>{{ formatearNumero(informe.pan_especial_kg) }} kg</dd>
+                    </div>
+
+                    <div>
+                      <dt>Ajuste por error</dt>
+                      <dd>{{ formatearNumero(informe.ajuste_por_error_kg) }} kg</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div class="bloque-detalle bloque-observacion">
+                  <h3>Observaciones</h3>
+
+                  <div class="texto-observacion">
+                    <strong>Detalle pan especial</strong>
+                    <p>{{ informe.detalle_pan_especial || 'Sin detalle registrado.' }}</p>
+                  </div>
+
+                  <div class="texto-observacion">
+                    <strong>Observación general</strong>
+                    <p>{{ informe.observacion || 'Sin observación registrada.' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <section class="bloque-entregas">
+                <div class="encabezado-entregas">
+                  <div>
+                    <span class="etiqueta-seccion">Detalle operativo</span>
+                    <h3>Entregas registradas del turno</h3>
+                  </div>
+
+                  <span>{{ repartosDetalle.length }} entrega(s)</span>
+                </div>
+
+                @if (cargandoRepartos) {
+                  <p class="mensaje-carga">
+                    Cargando entregas registradas...
+                  </p>
+                }
+
+                @if (!cargandoRepartos && repartosDetalle.length === 0) {
+                  <div class="sin-datos">
+                    No hay entregas registradas para este informe.
+                  </div>
+                }
+
+                @if (!cargandoRepartos && repartosDetalle.length > 0) {
+                  <div class="tabla-entregas">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Cliente</th>
+                          <th>Repartidor / distribución</th>
+                          <th>Cantidad</th>
+                          <th>Unidad</th>
+                          <th>Observación</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr *ngFor="let reparto of repartosDetalle; trackBy: trackByReparto">
+                          <td>{{ obtenerNombreCliente(reparto) }}</td>
+                          <td>{{ obtenerNombreDistribucion(reparto) }}</td>
+                          <td>{{ formatearNumero(reparto.cantidad_entregada) }}</td>
+                          <td>{{ reparto.unidad_medida }}</td>
+                          <td>{{ reparto.observacion || 'Sin observación' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </section>
+
+              @if (esAdministrador()) {
+                <p class="nota-seguridad">
+                  Vista de consulta administrativa. La corrección de informes queda pendiente hasta validar permisos de edición en backend.
+                </p>
+              }
+            </section>
+          }
+
+        </div>
+      }
+
+    </section>
+  }
+
+</section>

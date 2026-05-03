@@ -47,8 +47,9 @@ export class ProduccionComponent implements OnInit {
   mensajeErrorGestionTipos = signal<string>('');
   mensajeExitoGestionTipos = signal<string>('');
 
-  textoBusqueda = '';
+  fechaSeleccionada = '';
   turnoSeleccionado = '';
+  tiposSeleccionados: number[] = [];
 
   modalProduccionAbierto = false;
   modalTipoAbierto = false;
@@ -78,20 +79,38 @@ export class ProduccionComponent implements OnInit {
   }
 
   get produccionesFiltradas(): ProduccionRegistro[] {
-    const texto = this.normalizarTexto(this.textoBusqueda.trim());
-    const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
+  const fecha = this.fechaSeleccionada.trim();
+  const turno = this.normalizarTexto(this.turnoSeleccionado.trim());
 
-    return this.producciones().filter((produccion) => {
-      const coincideTexto =
-        !texto ||
-        this.normalizarTexto(produccion.tipo_produccion_nombre).includes(texto);
+  return this.producciones()
+    .filter((produccion) => {
+      const coincideFecha =
+        !fecha ||
+        produccion.jornada_fecha === fecha;
+
+      const coincideTipo =
+        this.tiposSeleccionados.length === 0 ||
+        this.tiposSeleccionados.includes(Number(produccion.id_tipo_produccion));
 
       const coincideTurno =
         !turno ||
         this.normalizarTexto(produccion.turno_nombre ?? '') === turno;
 
-      return coincideTexto && coincideTurno;
+      return coincideFecha && coincideTipo && coincideTurno;
+    })
+    .sort((a, b) => {
+      const comparacionFecha = b.jornada_fecha.localeCompare(a.jornada_fecha);
+
+      if (comparacionFecha !== 0) {
+        return comparacionFecha;
+      }
+
+      return Number(b.id_produccion) - Number(a.id_produccion);
     });
+}
+
+  get todosLosTiposActivos(): boolean {
+    return this.tiposSeleccionados.length === 0;
   }
 
   get turnosFormulario(): Turno[] {
@@ -222,6 +241,25 @@ export class ProduccionComponent implements OnInit {
     this.modalGestionTiposAbierto = false;
     this.idTipoEditando = null;
     this.reiniciarFormularioEditarTipo();
+  }
+
+  mostrarTodosLosTipos(): void {
+    this.tiposSeleccionados = [];
+  }
+
+  tipoEstaSeleccionado(idTipoProduccion: number): boolean {
+    return this.tiposSeleccionados.includes(Number(idTipoProduccion));
+  }
+
+  alternarTipoProduccion(idTipoProduccion: number): void {
+    const id = Number(idTipoProduccion);
+
+    if (this.tiposSeleccionados.includes(id)) {
+      this.tiposSeleccionados = this.tiposSeleccionados.filter((tipoId) => tipoId !== id);
+      return;
+    }
+
+    this.tiposSeleccionados = [...this.tiposSeleccionados, id];
   }
 
   guardarProduccion(): void {
@@ -411,7 +449,8 @@ export class ProduccionComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
-    this.textoBusqueda = '';
+    this.fechaSeleccionada = '';
+    this.tiposSeleccionados = [];
     this.turnoSeleccionado = '';
   }
 

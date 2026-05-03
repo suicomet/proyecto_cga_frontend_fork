@@ -8,7 +8,7 @@ export interface MovimientoBodega {
   insumo_nombre: string;
   turno_nombre: string | null;
   fecha_movimiento: string;
-  tipo_movimiento: 'ENTRADA' | 'SALIDA' | 'AJUSTE';
+  tipo_movimiento: 'ENTRADA' | 'SALIDA';
   cantidad: string | number;
   id_insumo: number;
   id_jornada?: number | null;
@@ -35,7 +35,7 @@ export interface Turno {
 
 export interface NuevoMovimientoBodega {
   fecha_movimiento: string;
-  tipo_movimiento: 'ENTRADA' | 'SALIDA' | 'AJUSTE';
+  tipo_movimiento: 'ENTRADA' | 'SALIDA';
   cantidad: string | number;
   id_insumo: number;
   id_turno: number;

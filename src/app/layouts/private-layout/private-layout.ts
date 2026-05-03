@@ -17,6 +17,7 @@ export class PrivateLayout implements OnInit, OnDestroy {
 
   usuarioActual: UsuarioActual | null = this.authService.obtenerUsuarioGuardado();
   modoOscuro: boolean = false;
+  sidebarAbierto: boolean = false; // ← NUEVO
 
   ngOnInit(): void {
     const guardado = localStorage.getItem('modoOscuro');
@@ -39,6 +40,15 @@ export class PrivateLayout implements OnInit, OnDestroy {
       document.body.classList.remove('modo-oscuro');
       localStorage.setItem('modoOscuro', 'false');
     }
+  }
+
+  // ← NUEVOS
+  toggleSidebar(): void {
+    this.sidebarAbierto = !this.sidebarAbierto;
+  }
+
+  cerrarSidebar(): void {
+    this.sidebarAbierto = false;
   }
 
   obtenerRolVisible(): string {

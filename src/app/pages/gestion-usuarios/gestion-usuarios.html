@@ -1,38 +1,71 @@
 <div class="encabezado-pagina">
   <h1>Gestión de Usuarios</h1>
-  <p>Administración de usuarios, roles y permisos del sistema</p>
+  <p>Administración interna de usuarios y roles del sistema</p>
 </div>
 
 <div class="fila-acciones">
   <input
     class="campo"
     type="text"
-    placeholder="Buscar por nombre, correo o rol..."
+    placeholder="Buscar por usuario, nombre, correo o rol..."
+    [(ngModel)]="textoBusqueda"
   />
 
-  <select class="campo selector-rol">
-    <option>Todos los roles</option>
-    <option>Administrador</option>
-    <option>Encargado de turno</option>
+  <select
+    class="campo selector-rol"
+    [(ngModel)]="rolSeleccionado"
+  >
+    <option value="">Todos los roles</option>
+    <option *ngFor="let rol of roles()" [value]="rol">
+      {{ rol }}
+    </option>
   </select>
 
-  <button class="boton-primario">+ Nuevo usuario</button>
+  <button
+    type="button"
+    class="boton-secundario"
+    (click)="limpiarFiltros()"
+  >
+    Limpiar
+  </button>
+
+  <button
+    type="button"
+    class="boton-primario"
+    (click)="abrirModalNuevoUsuario()"
+  >
+    + Nuevo usuario
+  </button>
+</div>
+
+<div
+  *ngIf="mensajeError()"
+  class="mensaje mensaje-error"
+>
+  {{ mensajeError() }}
+</div>
+
+<div
+  *ngIf="mensajeExito()"
+  class="mensaje mensaje-exito"
+>
+  {{ mensajeExito() }}
 </div>
 
 <section class="tarjetas-usuarios">
   <article class="tarjeta-resumen">
     <span>Usuarios registrados</span>
-    <strong>2</strong>
+    <strong>{{ totalUsuarios }}</strong>
   </article>
 
   <article class="tarjeta-resumen">
     <span>Administradores</span>
-    <strong>1</strong>
+    <strong>{{ totalAdministradores }}</strong>
   </article>
 
   <article class="tarjeta-resumen">
     <span>Encargados de turno</span>
-    <strong>1</strong>
+    <strong>{{ totalEncargados }}</strong>
   </article>
 </section>
 
@@ -47,11 +80,12 @@
       <ul>
         <li>Dashboard</li>
         <li>Producción</li>
+        <li>Control de Turno y Reparto</li>
+        <li>Informes de Turno</li>
         <li>Bodega</li>
         <li>Pedidos / Despacho</li>
         <li>Pagos / Cobros</li>
         <li>Clientes / Saldos</li>
-        <li>Reportes</li>
         <li>Gestión de Usuarios</li>
       </ul>
     </article>
@@ -62,43 +96,201 @@
 
       <ul>
         <li>Producción</li>
+        <li>Control de Turno y Reparto</li>
+        <li>Informes de Turno</li>
         <li>Bodega</li>
         <li>Pedidos / Despacho</li>
-        <li>Pagos / Cobros</li>
       </ul>
     </article>
   </div>
 </section>
 
-<table class="tabla">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Correo</th>
-      <th>Rol asignado</th>
-      <th>Estado</th>
-      <th>Acción</th>
-    </tr>
-  </thead>
+<section class="tarjeta">
+  <div class="tabla-scroll">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Rol asignado</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
 
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>Administrador</td>
-      <td>admin&#64;lapaloma.cl</td>
-      <td><span class="rol administrador">Administrador</span></td>
-      <td><span class="estado activo">Activo</span></td>
-      <td><button class="boton-detalle">Editar permisos</button></td>
-    </tr>
+      <tbody>
+        <tr *ngIf="cargando()">
+          <td colspan="7">Cargando usuarios...</td>
+        </tr>
 
-    <tr>
-      <td>2</td>
-      <td>Encargado de turno</td>
-      <td>encargado&#64;lapaloma.cl</td>
-      <td><span class="rol encargado">Encargado de turno</span></td>
-      <td><span class="estado activo">Activo</span></td>
-      <td><button class="boton-detalle">Editar permisos</button></td>
-    </tr>
-  </tbody>
-</table>
+        <tr *ngIf="!cargando() && usuariosFiltrados.length === 0">
+          <td colspan="7">No se encontraron usuarios con los filtros aplicados.</td>
+        </tr>
+
+        <tr *ngFor="let usuario of usuariosFiltrados">
+          <td>{{ usuario.id }}</td>
+          <td>{{ usuario.username }}</td>
+          <td>{{ obtenerNombreCompleto(usuario) }}</td>
+          <td>{{ usuario.email || 'Sin correo' }}</td>
+          <td>
+            <span class="rol" [ngClass]="obtenerClaseRol(usuario)">
+              {{ obtenerRolVisible(usuario) }}
+            </span>
+          </td>
+          <td>
+            <span class="estado" [ngClass]="obtenerClaseEstado(usuario)">
+              {{ obtenerTextoEstado(usuario) }}
+            </span>
+          </td>
+          <td class="acciones-tabla">
+            <button
+              type="button"
+              class="boton-detalle"
+              (click)="abrirModalEditarUsuario(usuario)"
+            >
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="boton-detalle peligro"
+              (click)="cambiarEstadoUsuario(usuario)"
+            >
+              {{ usuario.is_active ? 'Desactivar' : 'Activar' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div
+  class="modal-fondo"
+  *ngIf="modalUsuarioAbierto"
+>
+  <section class="modal-contenido">
+    <div class="modal-encabezado">
+      <div>
+        <h2>{{ modoEdicion ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+        <p>
+          {{ modoEdicion
+            ? 'Actualiza los datos, rol o estado del usuario.'
+            : 'Crea una cuenta interna para un trabajador autorizado.' }}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="boton-cerrar"
+        (click)="cerrarModalUsuario()"
+      >
+        ×
+      </button>
+    </div>
+
+    <form (ngSubmit)="guardarUsuario()">
+      <div class="formulario-grid">
+        <label>
+          Usuario *
+          <input
+            class="campo"
+            type="text"
+            name="username"
+            [(ngModel)]="formularioUsuario.username"
+            placeholder="Ej: juan_turno"
+          />
+        </label>
+
+        <label>
+          Correo
+          <input
+            class="campo"
+            type="email"
+            name="email"
+            [(ngModel)]="formularioUsuario.email"
+            placeholder="Ej: juan@lapaloma.cl"
+          />
+        </label>
+
+        <label>
+          Nombre
+          <input
+            class="campo"
+            type="text"
+            name="first_name"
+            [(ngModel)]="formularioUsuario.first_name"
+            placeholder="Ej: Juan"
+          />
+        </label>
+
+        <label>
+          Apellido
+          <input
+            class="campo"
+            type="text"
+            name="last_name"
+            [(ngModel)]="formularioUsuario.last_name"
+            placeholder="Ej: Pérez"
+          />
+        </label>
+
+        <label>
+          Rol *
+          <select
+            class="campo"
+            name="rol"
+            [(ngModel)]="formularioUsuario.rol"
+          >
+            <option *ngFor="let rol of roles()" [value]="rol">
+              {{ rol }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Estado
+          <select
+            class="campo"
+            name="is_active"
+            [(ngModel)]="formularioUsuario.is_active"
+          >
+            <option [ngValue]="true">Activo</option>
+            <option [ngValue]="false">Inactivo</option>
+          </select>
+        </label>
+
+        <label class="campo-ancho">
+          {{ modoEdicion ? 'Nueva contraseña (opcional)' : 'Contraseña temporal *' }}
+          <input
+            class="campo"
+            type="password"
+            name="password"
+            [(ngModel)]="formularioUsuario.password"
+            [placeholder]="modoEdicion ? 'Dejar vacío para mantener la actual' : 'Mínimo 6 caracteres'"
+          />
+        </label>
+      </div>
+
+      <div class="modal-acciones">
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="cerrarModalUsuario()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="boton-primario"
+          [disabled]="guardando()"
+        >
+          {{ guardando() ? 'Guardando...' : 'Guardar usuario' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

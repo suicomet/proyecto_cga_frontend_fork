@@ -60,7 +60,6 @@
   padding: 0 1.5rem;
 }
 
-/* Rol usuario */
 .rol-usuario span {
   display: block;
   color: var(--color-sidebar-texto-suave);
@@ -74,15 +73,32 @@
   font-size: 0.85rem;
 }
 
+.boton-tema {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.35rem 0.6rem;
+  transition: background 0.2s ease;
+}
+
+.boton-tema:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .boton-salir {
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   background: transparent;
   color: #ffffff;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 0.45rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
+  font-family: var(--fuente-principal);
+  transition: background 0.2s ease;
 }
 
 .boton-salir:hover {
@@ -105,35 +121,43 @@
   border-right: 1px solid var(--color-sidebar-borde);
   color: var(--color-sidebar-texto);
   overflow-y: auto;
+  padding: 0.75rem 0.6rem;
 }
 
 /* Menú */
 .menu-lateral {
   display: flex;
   flex-direction: column;
-  padding-top: 0;
+  gap: 2px;
 }
 
 .menu-lateral a {
   display: block;
-  padding: 0.85rem 1.25rem;
-  border-left: 4px solid transparent;
-  font-size: 0.9rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
   cursor: pointer;
   background: transparent;
-  color: var(--color-sidebar-texto);
+  color: var(--color-sidebar-texto-suave);
   white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-left: none;
 }
 
 .menu-lateral a:hover {
-  background: var(--color-sidebar-hover);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--color-sidebar-texto);
 }
 
 .menu-lateral a.activo {
-  background: var(--color-sidebar-activo);
+  background: var(--color-primario);
   color: #ffffff;
-  border-left-color: #ffffff;
   font-weight: 700;
+}
+
+.menu-lateral a.activo:hover {
+  background: var(--color-primario-hover);
 }
 
 /* Contenido */
@@ -145,4 +169,116 @@
   background: var(--color-fondo);
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* ─── Botón hamburguesa ─────────────────────────────────────── */
+.boton-hamburguesa {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  flex-shrink: 0;
+
+  span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+  }
+}
+
+/* Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  .layout-privado {
+    --ancho-sidebar: 260px;
+  }
+
+  /* Header más compacto */
+  .barra-superior {
+    grid-template-columns: 1fr auto;
+    padding: 0;
+    height: 54px;
+    min-height: 54px;
+  }
+
+  .marca-sistema {
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+  }
+
+  .marca-sistema h2 {
+    font-size: 0.88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .zona-usuario {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .boton-salir {
+    font-size: 0.72rem;
+    padding: 0.35rem 0.55rem;
+  }
+
+  /* Mostrar hamburguesa */
+  .boton-hamburguesa {
+    display: flex;
+  }
+
+  /* Ocultar texto "Panadería" en móvil */
+  .marca-sistema p {
+    display: none;
+  }
+
+  /* Ocultar rol en móvil para ahorrar espacio */
+  .rol-usuario {
+    display: none;
+  }
+
+  /* Sidebar fuera de pantalla por defecto */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    padding-top: 1rem;
+  }
+
+  /* Sidebar visible cuando está abierto */
+  .layout-privado.sidebar-abierto .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Overlay visible cuando sidebar abierto */
+  .layout-privado.sidebar-abierto .sidebar-overlay {
+    display: block;
+  }
+
+  /* Contenido ocupa todo el ancho */
+  .contenido {
+    padding: 1.25rem 1rem;
+  }
 }

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom, forkJoin } from 'rxjs';
@@ -115,7 +115,10 @@ export class ControlTurnoReparto implements OnInit {
         this.turnos = this.extraerLista(turnos)
           .filter((turno) => !this.esTurnoDePrueba(turno));
         this.clientes = this.extraerLista(clientes);
-        this.distribuciones = this.extraerLista(distribuciones);
+        this.distribuciones = this.extraerLista(distribuciones).filter((distribucion) => {
+          const nombreDistribucion = (distribucion.nombre_distribucion || '').trim().toLowerCase();
+          return nombreDistribucion !== 'sala de ventas';
+        });
         this.repartosTurno = this.extraerLista(repartosTurno);
         this.cierres = this.extraerLista(cierres);
 
@@ -127,7 +130,7 @@ export class ControlTurnoReparto implements OnInit {
       error: (error) => {
         this.cargando = false;
         this.mostrarError(
-          this.obtenerMensajeError(error, 'No se pudieron cargar los datos iniciales del módulo.')
+          this.obtenerMensajeError(error, 'No se pudieron cargar los datos iniciales del mÃ³dulo.')
         );
       }
     });
@@ -438,7 +441,7 @@ export class ControlTurnoReparto implements OnInit {
     }
 
     if (Number(this.formulario.ajuste_por_error_kg) !== 0 && !this.formulario.observacion.trim()) {
-      this.mostrarError('Si existe ajuste por error, la observación es obligatoria.');
+      this.mostrarError('Si existe ajuste por error, la observaciÃ³n es obligatoria.');
       return;
     }
 
@@ -521,7 +524,7 @@ export class ControlTurnoReparto implements OnInit {
       await this.recargarCierres();
       await this.recargarRepartosTurno();
 
-      this.mostrarExito('Datos guardados con éxito.');
+      this.mostrarExito('Datos guardados con Ã©xito.');
       this.mostrarMensajeAccionCierre('El reporte del turno fue finalizado correctamente.');
 
       this.cargandoCierre = false;

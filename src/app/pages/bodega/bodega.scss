@@ -50,13 +50,21 @@
 
 .panel-filtros {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
   gap: 1rem;
-  align-items: end;
+  align-items: start;
   background: var(--color-superficie);
   border: 1px solid var(--color-borde);
   border-radius: 16px;
   padding: 1rem;
+}
+
+.panel-filtros-bodega {
+  grid-template-columns:
+    minmax(210px, 0.9fr)
+    minmax(320px, 1.4fr)
+    minmax(220px, 0.85fr)
+    minmax(220px, 0.85fr)
+    auto;
 }
 
 .campo-filtro,
@@ -69,6 +77,11 @@
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--color-texto);
+  }
+
+  small {
+    color: var(--color-texto-suave);
+    font-size: 0.78rem;
   }
 
   input,
@@ -98,6 +111,44 @@
 .acciones-filtros {
   display: flex;
   align-items: end;
+}
+
+.stock-fecha {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra-suave);
+  overflow: hidden;
+}
+
+.stock-fecha-header {
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--color-borde);
+
+  h2 {
+    margin: 0;
+    color: var(--color-texto);
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--color-texto-suave);
+    font-size: 0.9rem;
+  }
+}
+
+.tabla-stock-wrapper {
+  overflow-x: auto;
+
+  table {
+    min-width: 520px;
+  }
+}
+
+.stock-cantidad {
+  font-weight: 700;
+  color: var(--color-texto);
 }
 
 .tabla-wrapper {
@@ -413,6 +464,16 @@ tbody {
   margin-top: 1rem;
 }
 
+@media (max-width: 1200px) {
+  .panel-filtros-bodega {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .acciones-filtros {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 900px) {
   .resumen-grid,
   .panel-filtros,
@@ -435,5 +496,109 @@ tbody {
   .btn-principal,
   .btn-secundario {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .encabezado {
+    flex-direction: column;
+    align-items: stretch;
+
+    h1 {
+      font-size: 1.4rem;
+    }
+  }
+
+  .acciones-encabezado {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .resumen-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .panel-filtros-bodega {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-filtros {
+    button {
+      width: 100%;
+    }
+  }
+
+  .tabla-stock-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-stock-wrapper table {
+    min-width: 420px;
+  }
+
+  .tabla-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+
+  .tabla-wrapper table {
+    min-width: 480px;
+  }
+
+  .modal-panel {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .modal-panel-gestion {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100vh - 2rem);
+  }
+
+  .tabla-gestion-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-gestion-wrapper table {
+    min-width: 480px;
+  }
+
+  .grid-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .fila-insumo {
+    grid-template-columns: 1fr;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .modal-footer {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .acciones-edicion {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
   }
 }

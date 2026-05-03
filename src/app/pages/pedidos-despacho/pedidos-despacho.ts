@@ -144,24 +144,35 @@ export class PedidosDespachoComponent implements OnInit {
   get pedidosFiltrados(): Pedido[] {
     const texto = this.normalizarTexto(this.textoBusqueda.trim());
 
-    return this.pedidos().filter((pedido) => {
-      const nombresProductos = pedido.detalles
-        ?.map((detalle) => detalle.producto_nombre)
-        .join(' ') ?? '';
+    return this.pedidos()
+      .filter((pedido) => {
+        const nombresProductos = pedido.detalles
+          ?.map((detalle) => detalle.producto_nombre)
+          .join(' ') ?? '';
 
-      const coincideTexto =
-        !texto ||
-        this.normalizarTexto(pedido.cliente_nombre).includes(texto) ||
-        this.normalizarTexto(this.formatearDistribucion(pedido.distribucion_nombre)).includes(texto) ||
-        this.normalizarTexto(nombresProductos).includes(texto);
+        const coincideTexto =
+          !texto ||
+          this.normalizarTexto(pedido.cliente_nombre).includes(texto) ||
+          this.normalizarTexto(this.formatearDistribucion(pedido.distribucion_nombre)).includes(texto) ||
+          this.normalizarTexto(nombresProductos).includes(texto);
 
-      const coincideDistribucion = this.coincideDistribucion(
-        pedido.distribucion_nombre,
-        this.distribucionSeleccionada
-      );
+        const coincideDistribucion = this.coincideDistribucion(
+          pedido.distribucion_nombre,
+          this.distribucionSeleccionada
+        );
 
-      return coincideTexto && coincideDistribucion;
-    });
+        return coincideTexto && coincideDistribucion;
+      })
+      .sort((pedidoA, pedidoB) => {
+        const fechaA = new Date(pedidoA.fecha_pedido).getTime();
+        const fechaB = new Date(pedidoB.fecha_pedido).getTime();
+
+        if (fechaA !== fechaB) {
+          return fechaB - fechaA;
+        }
+
+        return pedidoB.id_pedido - pedidoA.id_pedido;
+      });
   }
 
   get distribucionesFormulario(): Distribucion[] {
